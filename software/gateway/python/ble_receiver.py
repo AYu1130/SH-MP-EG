@@ -117,6 +117,10 @@ class BleReceiver:
                 pass
             # #endregion
             return False
+        # HM-10/BT05 默认 ATT MTU 常见为 23，write-without-response 实际有效负载通常 <=20B。
+        # 对超过 20B 的 JSON 命令做分片，避免 BlueZ "Failed to initiate write"。
+        chunk_size = 20
+        chunks = [data[i:i + chunk_size] for i in range(0, len(data), chunk_size)] or [b""]
         try:
             # #region agent log
             try:
@@ -130,6 +134,8 @@ class BleReceiver:
                         "device_id": device_id,
                         "byte_len": len(data),
                         "gt20": len(data) > 20,
+                        "chunk_count": len(chunks),
+                        "max_chunk_len": max((len(c) for c in chunks), default=0),
                         "char_uuid": self._cfg.ble_notify_char_uuid,
                         "response": False,
                     },
@@ -138,7 +144,28 @@ class BleReceiver:
             except Exception:
                 pass
             # #endregion
-            await client.write_gatt_char(self._cfg.ble_notify_char_uuid, data, response=False)
+            for idx, chunk in enumerate(chunks):
+                await client.write_gatt_char(
+                    self._cfg.ble_notify_char_uuid, chunk, response=False
+                )
+                # #region agent log
+                try:
+                    from debug_agent_log import agent_log
+
+                    agent_log(
+                        "H_BLE_CHUNK",
+                        "ble_receiver.py:write",
+                        "ble_write_chunk_ok",
+                        {
+                            "device_id": device_id,
+                            "chunk_index": idx,
+                            "chunk_len": len(chunk),
+                        },
+                        run_id="post-fix-chunk",
+                    )
+                except Exception:
+                    pass
+                # #endregion
             logger.info("BLE write -> %s: %s", device_id, data.hex())
             # #region agent log
             try:
@@ -148,7 +175,11 @@ class BleReceiver:
                     "H_BLE_CONN",
                     "ble_receiver.py:write",
                     "ble_write_ok",
-                    {"device_id": device_id, "byte_len": len(data)},
+                    {
+                        "device_id": device_id,
+                        "byte_len": len(data),
+                        "chunk_count": len(chunks),
+                    },
                 )
             except Exception:
                 pass
