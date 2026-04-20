@@ -53,12 +53,13 @@ def run(
 ) -> int:
     lat_ms: list[float] = []
     seen_seq: Set[int] = set()
+    min_seq: Optional[int] = None
     max_seq = -1
     msg_count = 0
     stop = {"done": False}
 
     def on_message(_c, _u, msg):
-        nonlocal max_seq, msg_count
+        nonlocal min_seq, max_seq, msg_count
         if stop["done"]:
             return
         try:
@@ -73,6 +74,7 @@ def run(
         recv_ns = time.time_ns()
         if seq is not None:
             seen_seq.add(seq)
+            min_seq = seq if min_seq is None else min(min_seq, seq)
             max_seq = max(max_seq, seq)
         if send_ns is not None and send_ns > 0:
             lat_ms.append((recv_ns - send_ns) / 1e6)
@@ -99,13 +101,14 @@ def run(
     client.disconnect()
 
     print(f"topic={topic} messages={msg_count} duration_s={duration_s:.1f}")
-    if max_seq >= 0:
-        expected = max_seq + 1
-        missing = expected - len(seen_seq)
+    if max_seq >= 0 and min_seq is not None:
+        # 订阅窗口可能从任意 seq 开始，不应默认从 0 起算。
+        expected = max_seq - min_seq + 1
+        missing = max(0, expected - len(seen_seq))
         loss_pct = (missing / expected * 100.0) if expected > 0 else 0.0
         print(
-            f"seq range 0..{max_seq} unique_seq={len(seen_seq)} "
-            f"missing≈{missing} loss_pct≈{loss_pct:.3f}%"
+            f"seq range {min_seq}..{max_seq} unique_seq={len(seen_seq)} "
+            f"missing~{missing} loss_pct~{loss_pct:.3f}%"
         )
     if lat_ms:
         s = sorted(lat_ms)

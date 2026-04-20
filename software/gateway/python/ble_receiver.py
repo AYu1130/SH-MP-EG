@@ -207,18 +207,9 @@ class BleReceiver:
                                 validate(msg, strict=False)
                             self._on_message(msg)
                     else:
-                        # 非 '\n' 分帧的情况：按单次 notify 作为一帧解析；
-                        # 如果 payload 能单独解析通过就用掉缓冲
-                        msg = normalize_ble(
-                            device_id=device_id,
-                            raw_bytes=bytes(buf),
-                            mac=dev.address,
-                        )
-                        if msg.get("status") != "fault":
-                            buf.clear()
-                            if self._cfg.validate_schema:
-                                validate(msg, strict=False)
-                            self._on_message(msg)
+                        # 仅在收到 '\n' 终止符后解析，避免 HM-10 分片期间把半包当坏包告警。
+                        # 若设备永不发送 '\n'，将由 4KB 防护逻辑定期截断缓冲。
+                        pass
                 except Exception:
                     logger.exception("BLE on_notify handler error")
 
