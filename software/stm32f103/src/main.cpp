@@ -18,8 +18,10 @@
  *     网关 on_command -> BleReceiver.write -> GATT 0xFFE1 write ->
  *       HM-10 UART(RX) -> STM32 -> handle_command() -> 蜂鸣器
  *
- * 上行 JSON 帧（HM-10 单次 notify ≤19B；末尾 '\\n' 由 ble_println 加）：
- *   仅 l、d；l 为 lx 裁剪到 0~4095；例：{"l":320,"d":0}
+ * 上行 JSON 帧（末尾 '\\n' 由 ble_println 加；网关会按行重组 HM-10 分片）：
+ *   {"l":320,"d":0,"seq":12,"send_ns":1713333333123456789}
+ *   - seq: 单调递增，供丢包统计
+ *   - send_ns: 由网关下发 sync_ns 后，用本地毫秒时钟外推
  *
  * 下行命令 JSON：
  *   {"buzzer": true|false}             // 立即开/关
@@ -53,20 +55,32 @@ static uint32_t s_last_sample = 0;
 static uint32_t s_seq = 0;
 static bool     s_remote_override = false;
 static bool     s_last_dark = false;
+static bool     s_time_synced = false;
+static int64_t  s_sync_base_ns = 0;
+static uint32_t s_sync_base_ms = 0;
+
+static int64_t current_send_ns() {
+  if (!s_time_synced) return -1;
+  uint32_t dt_ms = millis() - s_sync_base_ms;
+  return s_sync_base_ns + static_cast<int64_t>(dt_ms) * 1000000LL;
+}
 
 // ==================== 1. 上行：编码 + 发送 ==============================
 static void publish_telemetry(const LdrSample &s) {
   JsonDocument doc;
   doc["l"] = s.light;
   doc["d"] = s.is_dark ? 1 : 0;
+  doc["seq"] = s_seq;
+  int64_t ns = current_send_ns();
+  if (ns > 0) {
+    doc["send_ns"] = ns;
+  }
 
-  char buf[48];
+  char buf[128];
   size_t n = serializeJson(doc, buf, sizeof(buf));
   if (n == 0 || n >= sizeof(buf)) return;
   buf[n] = '\0';
-  if (n > 19) {
-    SerialDbg.println("[tx] WARN json>19B");
-  }
+  if (n > 19) SerialDbg.println("[tx] json fragmented over HM-10 notifications");
 
   SerialDbg.print("[tx] ");
   SerialDbg.print(buf);
@@ -109,6 +123,18 @@ static void handle_command(const String &line) {
   long cmd_src_seq = -1L;
   if (!doc["src_seq"].isNull()) {
     cmd_src_seq = doc["src_seq"].as<long>();
+  }
+
+  if (!doc["sync_ns"].isNull()) {
+    int64_t sync_ns = doc["sync_ns"].as<int64_t>();
+    if (sync_ns > 0) {
+      s_sync_base_ns = sync_ns;
+      s_sync_base_ms = millis();
+      s_time_synced = true;
+      SerialDbg.print("[cmd] time sync ns=");
+      SerialDbg.println((long long)sync_ns);
+    }
+    return;
   }
 
   if (doc["buzzer"].is<bool>()) {

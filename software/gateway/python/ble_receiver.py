@@ -25,6 +25,8 @@ BLE 接入适配器（基于 ``bleak``）。
 from __future__ import annotations
 
 import asyncio
+import json
+import time
 from typing import Awaitable, Callable, Dict, Optional, Set
 
 try:
@@ -222,6 +224,14 @@ class BleReceiver:
 
             await client.start_notify(self._cfg.ble_notify_char_uuid, _on_notify)
             logger.info("BLE subscribed: %s <- %s", device_id, self._cfg.ble_notify_char_uuid)
+            # 连接建立后立即授时：STM32 用 sync_ns + millis() 外推 send_ns
+            try:
+                sync_cmd = json.dumps({"sync_ns": time.time_ns()}, separators=(",", ":")) + "\n"
+                ok = await self.write(device_id, sync_cmd.encode("utf-8"))
+                if not ok:
+                    logger.warning("BLE sync_ns write failed for %s", device_id)
+            except Exception:
+                logger.exception("BLE sync_ns init failed for %s", device_id)
 
             # 保持连接，直到客户端断开或 stop
             while not self._stop_evt.is_set() and client.is_connected:

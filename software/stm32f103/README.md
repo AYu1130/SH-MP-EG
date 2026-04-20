@@ -62,13 +62,15 @@ pio device monitor              # 115200 bps 看 USART1 调试输出
 ## 上行 JSON 帧
 
 ```json
-{"l":1000,"d":0}
+{"l":1000,"d":0,"seq":12,"send_ns":1713333333123456789}
 ```
 
 - `l`: 照度 lx **裁剪到 0~4095**（与 BH1750 读数一致，室内多为数百 lx 量级）
 - `d`: 1 = 偏暗需要补光，0 = 足够亮
-- 帧尾 `\n` 分隔。为适配 HM-10 **单次 notify 约 20B**，上行**不含 `id`**
-  （总长 ≤20B）；网关用 BLE 设备名/MAC 作为 `device_id`。
+- `seq`: 递增序号，供订阅侧估算丢包
+- `send_ns`: 发送端 Unix 纳秒时间戳（需先收到网关 `{"sync_ns":...}` 授时）
+- 帧尾 `\n` 分隔。若 JSON >20B，HM-10 会分成多次 notify；网关已支持按换行重组。
+- 上行仍不含 `id`，网关用 BLE 设备名/MAC 作为 `device_id`。
 
 ## 下行命令 JSON
 
@@ -78,6 +80,7 @@ pio device monitor              # 115200 bps 看 USART1 调试输出
 | `{"beep":3}` | 鸣响 3 次（150ms on / 150ms off） |
 | `{"beep":{"on":150,"off":150,"n":3}}` | 自定义节奏 |
 | `{"auto":true}` | 释放远程接管，恢复"暗->短鸣 1 次"本地规则 |
+| `{"sync_ns":1713333333123456789}` | 网关授时，后续上行可生成 `send_ns` |
 
 若命令中含 **`src_seq`**（Node-RED 跨节点联动），执行蜂鸣类命令后会再发一行 **`{"k":<seq>}`**（≤19B，适配 HM-10 单帧）；网关统一模型里为 `payload.k`，供 `cross_node_relay_test.py --stop-at device` 配对端到端时延。`src_seq` 位数过大导致 JSON 超过 19B 时固件会跳过发送。
 
@@ -102,4 +105,10 @@ pio device monitor              # 115200 bps 看 USART1 调试输出
 
 ## 跨设备性能（可选）
 
-若要在树莓派运行 `tests/performance/cross_device_perf_subscribe.py --path ble` 统计 **时延**，经 HM-10 透传的 JSON 需包含 **`send_ns`**（Unix 纳秒）与 **`seq`**，且与网关侧 **NTP 对时** 后再比较。当前默认固件仅上报 `l`/`d` 等字段；可在 `main.cpp` 的 JSON 输出中自行增加上述字段（STM32 无内置 SNTP 时需外接 RTC 或简化只测到达率）。
+运行网关后会自动在 BLE 连接建立时下发 `sync_ns`。STM32 收到后开始在上行 JSON 中携带 `seq/send_ns`，因此可直接使用：
+
+```bash
+python tests/performance/cross_device_perf_subscribe.py --path ble --device-id SHMPEG-BLE --duration 120
+```
+
+若日志提示未出现 `send_ns`，请先确认 BLE 已成功连接网关并观察串口是否打印 `[cmd] time sync ns=...`。
