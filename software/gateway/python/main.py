@@ -119,6 +119,24 @@ async def amain(cfg: GatewayConfig) -> None:
     # MQTT 收到 smarthome/v1/command/<type>/<id> 时会回调这里
     def on_command(device_type: str, device_id: str, payload: Dict) -> None:
         log.info("[cmd] %s/%s <- %s", device_type, device_id, payload)
+        # #region agent log
+        try:
+            from debug_agent_log import agent_log
+
+            agent_log(
+                "H_WIFI_RELEASE",
+                "main.py:on_command",
+                "command_received",
+                {
+                    "device_type": device_type,
+                    "device_id": device_id,
+                    "keys": sorted(str(k) for k in payload.keys()),
+                    "reason": payload.get("reason"),
+                },
+            )
+        except Exception:
+            pass
+        # #endregion
         if device_type == "ble" and ble_recv is not None:
             # payload 约定 {"raw_hex": "01020304"} 或 {"text": "LED:ON"}
             # 或 Node-RED 下发的 JSON 对象（beep/buzzer/auto 等）-> 整帧 UTF-8 行给 HM-10
@@ -138,6 +156,23 @@ async def amain(cfg: GatewayConfig) -> None:
                 asyncio.run_coroutine_threadsafe(ble_recv.write(device_id, data), loop)
         elif device_type == "wifi" and wifi_recv is not None:
             ok = wifi_recv.write(device_id, payload)
+            # #region agent log
+            try:
+                from debug_agent_log import agent_log
+
+                agent_log(
+                    "H_WIFI_TCP",
+                    "main.py:on_command",
+                    "wifi_write_result",
+                    {
+                        "device_id": device_id,
+                        "ok": bool(ok),
+                        "keys": sorted(str(k) for k in payload.keys()),
+                    },
+                )
+            except Exception:
+                pass
+            # #endregion
             if not ok:
                 log.warning("wifi command dropped (no live TCP): %s/%s", device_type, device_id)
         else:
