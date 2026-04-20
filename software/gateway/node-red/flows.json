@@ -4,7 +4,7 @@
     "type": "tab",
     "label": "SH-MP-EG Cross-Node Rules",
     "disabled": false,
-    "info": "异构终端节点互通示例：\n- 订阅 telemetry/+/+，分别缓存最近一次 wifi/ble 节点的 device_id\n- BLE 节点变暗 -> 给 Wi-Fi (ESP32) 发 {\"led\":\"yellow\"}\n- Wi-Fi 节点温度 > 28°C -> 给 BLE (STM32) 发 {\"beep\":3}\n- 命令通过 smarthome/v1/command/<type>/<id> 发布，由网关转换到对应物理协议"
+    "info": "异构终端节点互通示例：\n- 订阅 telemetry/+/+，分别缓存最近一次 wifi/ble 节点的 device_id\n- BLE 节点变暗 -> 给 Wi-Fi (ESP32) 发 {\"led\":\"yellow\"}\n- BLE 节点恢复明亮 -> 给 Wi-Fi 发 {\"auto\":true} 释放远程接管\n- Wi-Fi 节点温度 > 28°C -> 给 BLE (STM32) 发 {\"beep\":3}\n- 命令通过 smarthome/v1/command/<type>/<id> 发布，由网关转换到对应物理协议"
   },
 
   {
@@ -62,7 +62,7 @@
     "outputs": 2,
     "x": 640,
     "y": 120,
-    "wires": [["rule-temp-high"], ["rule-light-low"]]
+    "wires": [["rule-temp-high"], ["rule-light-low", "rule-light-bright"]]
   },
 
   {
@@ -104,6 +104,30 @@
     "x": 870,
     "y": 160,
     "wires": [["build-wifi-led"]]
+  },
+
+  {
+    "id": "rule-light-bright",
+    "type": "function",
+    "z": "tab-shmpeg",
+    "name": "ble bright? (inverse of dark)",
+    "func": "const p = (msg.payload && msg.payload.payload) || {};\nif (p.keepalive) return null;\nconst light = p.light !== undefined ? p.light : p.l;\nconst dark  = (p.dark === true) || (p.d === 1) || (typeof light === 'number' && light < 100);\nreturn dark ? null : msg;\n",
+    "outputs": 1,
+    "x": 880,
+    "y": 220,
+    "wires": [["build-wifi-auto"]]
+  },
+
+  {
+    "id": "build-wifi-auto",
+    "type": "function",
+    "z": "tab-shmpeg",
+    "name": "-> Wi-Fi auto (release)",
+    "func": "const peer = flow.get('last_id_wifi');\nif (!peer) {\n  node.warn('no Wi-Fi peer cached, skip');\n  return null;\n}\nconst src = msg.payload.device_id;\nreturn {\n  topic: `smarthome/v1/command/wifi/${peer}`,\n  payload: { auto: true, reason: 'ble_bright', src: src, ts: Date.now() }\n};\n",
+    "outputs": 1,
+    "x": 1110,
+    "y": 220,
+    "wires": [["mqtt-out-cmd"]]
   },
 
   {
