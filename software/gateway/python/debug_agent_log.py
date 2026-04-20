@@ -2,10 +2,12 @@
 from __future__ import annotations
 
 import json
+import logging
 import time
 from pathlib import Path
 
 _LOG_PATH = Path(__file__).resolve().parents[3] / "debug-2d0ce5.log"
+_LOG = logging.getLogger("gateway.debug_agent_log")
 
 
 def agent_log(hypothesis_id: str, location: str, message: str, data: dict | None = None) -> None:
@@ -19,10 +21,12 @@ def agent_log(hypothesis_id: str, location: str, message: str, data: dict | None
         "runId": "bright-led-debug",
     }
     try:
+        _LOG_PATH.parent.mkdir(parents=True, exist_ok=True)
         with open(_LOG_PATH, "a", encoding="utf-8") as f:
             f.write(json.dumps(payload, ensure_ascii=False) + "\n")
-    except OSError:
-        pass
+    except OSError as e:
+        # 不吞掉写盘失败，回写到 gateway.log 便于定位权限/路径问题
+        _LOG.error("debug ndjson write failed path=%s err=%s", _LOG_PATH, e)
 """Append-only NDJSON for debug sessions (see repo debug-2d0ce5.log)."""
 from __future__ import annotations
 

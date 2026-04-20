@@ -103,6 +103,19 @@ async def amain(cfg: GatewayConfig) -> None:
 
     # paho 在独立线程回调 on_command；BLE 写入必须用主事件循环线程调度
     loop = asyncio.get_running_loop()
+    # #region agent log
+    try:
+        from debug_agent_log import agent_log
+
+        agent_log(
+            "H_LOG_BOOT",
+            "main.py:amain",
+            "debug_log_boot_marker",
+            {"cwd_loop_ready": True},
+        )
+    except Exception:
+        pass
+    # #endregion
 
     # ---- 本地缓存 ---------------------------------------------------- #
     cache = None
