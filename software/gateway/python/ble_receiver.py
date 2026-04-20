@@ -118,6 +118,26 @@ class BleReceiver:
             # #endregion
             return False
         try:
+            # #region agent log
+            try:
+                from debug_agent_log import agent_log
+
+                agent_log(
+                    "H_BLE_CHUNK",
+                    "ble_receiver.py:write",
+                    "ble_write_attempt",
+                    {
+                        "device_id": device_id,
+                        "byte_len": len(data),
+                        "gt20": len(data) > 20,
+                        "char_uuid": self._cfg.ble_notify_char_uuid,
+                        "response": False,
+                    },
+                    run_id="pre-fix-2",
+                )
+            except Exception:
+                pass
+            # #endregion
             await client.write_gatt_char(self._cfg.ble_notify_char_uuid, data, response=False)
             logger.info("BLE write -> %s: %s", device_id, data.hex())
             # #region agent log
@@ -134,7 +154,7 @@ class BleReceiver:
                 pass
             # #endregion
             return True
-        except Exception:
+        except Exception as e:
             logger.exception("BLE write failed for %s", device_id)
             # #region agent log
             try:
@@ -144,7 +164,13 @@ class BleReceiver:
                     "H_BLE_CONN",
                     "ble_receiver.py:write",
                     "ble_write_exc",
-                    {"device_id": device_id},
+                    {
+                        "device_id": device_id,
+                        "byte_len": len(data),
+                        "exc_type": type(e).__name__,
+                        "exc": str(e),
+                    },
+                    run_id="pre-fix-2",
                 )
             except Exception:
                 pass
