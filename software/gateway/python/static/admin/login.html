@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>网关管理 — 登录</title>
+  <style>
+    :root { --bg: #0f1419; --card: #1a2332; --text: #e6edf3; --muted: #8b949e; --accent: #3fb950; --err: #f85149; }
+    * { box-sizing: border-box; }
+    body { font-family: system-ui, sans-serif; background: var(--bg); color: var(--text); margin: 0; min-height: 100vh; display: flex; align-items: center; justify-content: center; }
+    .card { background: var(--card); padding: 2rem; border-radius: 12px; width: 100%; max-width: 380px; box-shadow: 0 8px 32px rgba(0,0,0,.35); }
+    h1 { font-size: 1.25rem; margin: 0 0 0.5rem; font-weight: 600; }
+    p.sub { color: var(--muted); font-size: 0.875rem; margin: 0 0 1.5rem; }
+    label { display: block; font-size: 0.8rem; color: var(--muted); margin-bottom: 0.35rem; }
+    input { width: 100%; padding: 0.65rem 0.75rem; border-radius: 8px; border: 1px solid #30363d; background: #0d1117; color: var(--text); margin-bottom: 1rem; }
+    input:focus { outline: 2px solid var(--accent); border-color: transparent; }
+    button { width: 100%; padding: 0.75rem; border: 0; border-radius: 8px; background: var(--accent); color: #0d1117; font-weight: 600; cursor: pointer; }
+    button:disabled { opacity: 0.5; cursor: not-allowed; }
+    .msg { margin-top: 1rem; font-size: 0.875rem; min-height: 1.25rem; }
+    .msg.err { color: var(--err); }
+    .msg.ok { color: var(--accent); }
+  </style>
+</head>
+<body>
+  <div class="card">
+    <h1>SH-MP-EG 网关管理</h1>
+    <p class="sub">使用管理员或普通用户账号登录</p>
+    <form id="f">
+      <label for="u">用户名</label>
+      <input id="u" name="username" autocomplete="username" required />
+      <label for="p">密码</label>
+      <input id="p" name="password" type="password" autocomplete="current-password" required />
+      <button type="submit" id="btn">登录</button>
+    </form>
+    <div class="msg err" id="err"></div>
+  </div>
+  <script>
+    const errEl = document.getElementById("err");
+    const btn = document.getElementById("btn");
+    document.getElementById("f").addEventListener("submit", async (e) => {
+      e.preventDefault();
+      errEl.textContent = "";
+      errEl.className = "msg err";
+      const username = document.getElementById("u").value.trim();
+      const password = document.getElementById("p").value;
+      if (!username || !password) {
+        errEl.textContent = "请输入用户名和密码";
+        return;
+      }
+      btn.disabled = true;
+      try {
+        const r = await fetch("/api/v1/admin/login", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          credentials: "same-origin",
+          body: JSON.stringify({ username, password }),
+        });
+        const data = await r.json().catch(() => ({}));
+        if (r.ok && data.ok) {
+          window.location.href = "/admin/app.html";
+          return;
+        }
+        errEl.textContent = data.message || data.error || ("登录失败 (" + r.status + ")");
+        if (data.code === "locked" && data.retry_after_sec) {
+          errEl.textContent += "（约 " + data.retry_after_sec + " 秒后重试）";
+        }
+      } catch (x) {
+        errEl.textContent = "网络错误";
+      } finally {
+        btn.disabled = false;
+      }
+    });
+  </script>
+</body>
+</html>

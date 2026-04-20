@@ -1,0 +1,68 @@
+@startuml SH-MP-EG Gateway Component
+title SH-MP-EG Edge Gateway — Component View
+
+skinparam componentStyle rectangle
+skinparam shadowing false
+
+package "Perception Layer" as P {
+  component "ESP32-S3 Node\n(Wi-Fi, DHT22, Buzzer)" as ESP
+  component "STM32F103 Node\n(BLE, LDR, LED)" as STM
+}
+
+package "Edge Gateway (Raspberry Pi 4B)" as G {
+  component "wifi_receiver\n(Flask + asyncio TCP)" as Wifi
+  component "ble_receiver\n(bleak GATT)" as Ble
+  component "data_converter\n(unified JSON + schema)" as Conv
+  component "mqtt_publisher\n(paho-mqtt)" as Mqtt
+  database "MessageCache\n(SQLite)" as Cache
+}
+
+package "Network Layer" as N {
+  component "EMQX Broker\n(docker)" as Emqx
+}
+
+package "Application Layer" as A {
+  component "Node-RED\nRule Engine" as NodeRed
+  component "Web UI" as UI
+}
+
+ESP --> Wifi : HTTP / TCP JSON
+STM --> Ble  : BLE Notification
+Wifi --> Conv
+Ble  --> Conv
+Conv --> Mqtt
+Mqtt <--> Cache : offline buffering
+Mqtt --> Emqx   : publish telemetry
+Emqx --> NodeRed: subscribe
+NodeRed --> Emqx: publish command
+Emqx --> Mqtt   : command
+Mqtt --> Ble    : on_command -> BLE write
+UI --> Emqx     : MQTT over WS / HTTP
+
+@enduml
+
+
+@startuml SH-MP-EG Sequence — Rule Trigger
+title Rule trigger: high temperature -> buzzer
+
+actor "ESP32-S3" as ESP
+participant "wifi_receiver" as WR
+participant "data_converter" as DC
+participant "mqtt_publisher" as MP
+participant "EMQX" as B
+participant "Node-RED" as NR
+participant "(Buzzer)" as BUZ
+
+ESP -> WR: POST /api/v1/telemetry\n{id,t=30,h,l}
+WR -> DC: normalize_wifi(raw)
+DC --> WR: unified JSON
+WR -> MP: publish_unified(msg)
+MP -> B: smarthome/v1/telemetry/wifi/<id>
+B -> NR: deliver
+NR -> NR: switch payload.temperature > 28 ?
+NR -> B: smarthome/v1/command/wifi/<id>\n{buzzer:true}
+B -> MP: deliver command
+MP -> WR: on_command('wifi', id, {...})
+note right: (当前实现未对\nWi-Fi 做下行写入；\n可扩展为 TCP 长连接)
+
+@enduml

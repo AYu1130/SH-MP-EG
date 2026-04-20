@@ -1,0 +1,33 @@
+{
+    // 统一 Python 解释器到网关项目的虚拟环境（根据实际情况修改）
+    "python.defaultInterpreterPath": "${workspaceFolder}/.venv/Scripts/python.exe",
+
+    // 格式化 / 静态检查
+    "python.analysis.typeCheckingMode": "basic",
+    "python.analysis.autoImportCompletions": true,
+    "[python]": {
+        "editor.formatOnSave": true,
+        "editor.defaultFormatter": "ms-python.black-formatter"
+    },
+
+    // pytest 作为默认测试框架
+    "python.testing.pytestEnabled": true,
+    "python.testing.unittestEnabled": false,
+    "python.testing.pytestArgs": [
+        "tests"
+    ],
+
+    // 通用
+    "files.eol": "\n",
+    "files.insertFinalNewline": true,
+    "files.trimTrailingWhitespace": true,
+    "editor.rulers": [
+        100
+    ],
+    "search.exclude": {
+        "**/.venv": true,
+        "**/.pio": true,
+        "**/__pycache__": true,
+        "**/node_modules": true
+    }
+}

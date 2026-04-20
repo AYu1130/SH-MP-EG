@@ -1,0 +1,44 @@
+{
+    // VSCode 调试配置；按 F5 选择对应条目启动
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": "Gateway: main (Python)",
+            "type": "debugpy",
+            "request": "launch",
+            "program": "${workspaceFolder}/software/gateway/python/main.py",
+            "cwd": "${workspaceFolder}/software/gateway/python",
+            "console": "integratedTerminal",
+            "justMyCode": true,
+            "env": {
+                "PYTHONUNBUFFERED": "1"
+            }
+        },
+        {
+            "name": "Tools: MQTT Bench",
+            "type": "debugpy",
+            "request": "launch",
+            "program": "${workspaceFolder}/tools/mqtt_bench.py",
+            "cwd": "${workspaceFolder}",
+            "console": "integratedTerminal",
+            "args": [
+                "--messages",
+                "1000",
+                "--qos",
+                "1"
+            ]
+        },
+        {
+            "name": "Pytest: current file",
+            "type": "debugpy",
+            "request": "launch",
+            "module": "pytest",
+            "cwd": "${workspaceFolder}",
+            "args": [
+                "${file}",
+                "-v"
+            ],
+            "console": "integratedTerminal"
+        }
+    ]
+}

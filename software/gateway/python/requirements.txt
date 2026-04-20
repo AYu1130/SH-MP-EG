@@ -1,0 +1,30 @@
+# ==============================================================
+# SH-MP-EG Gateway (Raspberry Pi / Linux) Python dependencies
+# ==============================================================
+# 使用:
+#   python -m venv .venv
+#   .venv/bin/activate   (Linux) | .venv\Scripts\activate (Windows)
+#   pip install -r requirements.txt
+#
+# 版本号保守固定，保证毕业答辩时环境可复现；
+# 生产部署时可用 `pip install --upgrade -r requirements.txt`。
+
+# ----- MQTT -----
+paho-mqtt==1.6.1
+
+# ----- Wi-Fi / HTTP 适配器 -----
+Flask==3.0.3
+Werkzeug==3.0.3
+
+# ----- BLE (树莓派 / Linux 上使用 BlueZ 后端) -----
+# 注意: bleak 在树莓派上依赖 dbus-fast / bluez，需要先
+#       sudo apt install bluez libglib2.0-dev
+bleak==0.22.3
+
+# ----- JSON Schema 校验(可选，但强烈推荐) -----
+jsonschema==4.23.0
+
+# ----- 测试 / 开发 -----
+pytest==8.3.3
+pytest-asyncio==0.24.0
+requests==2.32.3

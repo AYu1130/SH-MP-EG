@@ -1,0 +1,147 @@
+[
+  {
+    "id": "tab-shmpeg",
+    "type": "tab",
+    "label": "SH-MP-EG Cross-Node Rules",
+    "disabled": false,
+    "info": "异构终端节点互通示例：\n- 订阅 telemetry/+/+，分别缓存最近一次 wifi/ble 节点的 device_id\n- BLE 节点变暗 -> 给 Wi-Fi (ESP32) 发 {\"led\":\"yellow\"}\n- Wi-Fi 节点温度 > 28°C -> 给 BLE (STM32) 发 {\"beep\":3}\n- 命令通过 smarthome/v1/command/<type>/<id> 发布，由网关转换到对应物理协议"
+  },
+
+  {
+    "id": "mqtt-broker-cfg",
+    "type": "mqtt-broker",
+    "name": "local-emqx",
+    "broker": "127.0.0.1",
+    "port": "1883",
+    "clientid": "node-red-shmpeg",
+    "autoConnect": true,
+    "usetls": false,
+    "protocolVersion": "4",
+    "keepalive": "30",
+    "cleansession": true
+  },
+
+  {
+    "id": "mqtt-in-telemetry",
+    "type": "mqtt in",
+    "z": "tab-shmpeg",
+    "name": "sub: telemetry/+/+",
+    "topic": "smarthome/v1/telemetry/+/+",
+    "qos": "1",
+    "datatype": "json",
+    "broker": "mqtt-broker-cfg",
+    "x": 140,
+    "y": 120,
+    "wires": [["cache-peer-id"]]
+  },
+
+  {
+    "id": "cache-peer-id",
+    "type": "function",
+    "z": "tab-shmpeg",
+    "name": "cache last seen device_id (per type)",
+    "func": "// 把最近一次见到的同类型 device_id 写入 flow.context\n// 这样从 BLE 触发时能查到最近活跃的 wifi 节点（反之亦然）\nconst p = msg.payload || {};\nconst t = p.device_type;\nconst id = p.device_id;\nif (t && id) {\n  flow.set('last_id_' + t, id);\n  flow.set('last_seen_' + t, Date.now());\n}\nreturn msg;\n",
+    "outputs": 1,
+    "x": 380,
+    "y": 120,
+    "wires": [["split-by-type"]]
+  },
+
+  {
+    "id": "split-by-type",
+    "type": "switch",
+    "z": "tab-shmpeg",
+    "name": "split by device_type",
+    "property": "payload.device_type",
+    "propertyType": "msg",
+    "rules": [
+      { "t": "eq", "v": "wifi", "vt": "str" },
+      { "t": "eq", "v": "ble", "vt": "str" }
+    ],
+    "checkall": "true",
+    "outputs": 2,
+    "x": 640,
+    "y": 120,
+    "wires": [["rule-temp-high"], ["rule-light-low"]]
+  },
+
+  {
+    "id": "rule-temp-high",
+    "type": "switch",
+    "z": "tab-shmpeg",
+    "name": "wifi temp > 28 ?",
+    "property": "payload.payload.temperature",
+    "propertyType": "msg",
+    "rules": [
+      { "t": "gt", "v": "28", "vt": "num" }
+    ],
+    "checkall": "true",
+    "outputs": 1,
+    "x": 870,
+    "y": 80,
+    "wires": [["build-ble-beep"]]
+  },
+
+  {
+    "id": "build-ble-beep",
+    "type": "function",
+    "z": "tab-shmpeg",
+    "name": "-> BLE beep 3 (cross-node)",
+    "func": "// Wi-Fi 节点温度高 -> 给最近活跃的 BLE 节点发蜂鸣命令；带回 src_seq 便于测试脚本配对\nconst peer = flow.get('last_id_ble');\nif (!peer) {\n  node.warn('no BLE peer cached, skip');\n  return null;\n}\nconst src = msg.payload.device_id;\nconst srcSeq = (msg.payload && msg.payload.payload && msg.payload.payload.seq);\nreturn {\n  topic: `smarthome/v1/command/ble/${peer}`,\n  payload: { beep: 3, reason: 'wifi_temp_high', src: src, src_seq: srcSeq, ts: Date.now() }\n};\n",
+    "outputs": 1,
+    "x": 1110,
+    "y": 80,
+    "wires": [["mqtt-out-cmd"]]
+  },
+
+  {
+    "id": "rule-light-low",
+    "type": "function",
+    "z": "tab-shmpeg",
+    "name": "ble dark? (l<100 或 d==1)",
+    "func": "const p = (msg.payload && msg.payload.payload) || {};\nconst light = p.light !== undefined ? p.light : p.l;\nconst dark  = (p.dark === true) || (p.d === 1) || (typeof light === 'number' && light < 100);\nreturn dark ? msg : null;\n",
+    "outputs": 1,
+    "x": 870,
+    "y": 160,
+    "wires": [["build-wifi-led"]]
+  },
+
+  {
+    "id": "build-wifi-led",
+    "type": "function",
+    "z": "tab-shmpeg",
+    "name": "-> Wi-Fi LED yellow (cross-node)",
+    "func": "// BLE 节点变暗 -> 给最近活跃的 Wi-Fi (ESP32) 节点亮黄灯；带回 src_seq 便于测试脚本配对\nconst peer = flow.get('last_id_wifi');\nif (!peer) {\n  node.warn('no Wi-Fi peer cached, skip');\n  return null;\n}\nconst src = msg.payload.device_id;\nconst srcSeq = (msg.payload && msg.payload.payload && msg.payload.payload.seq);\nreturn {\n  topic: `smarthome/v1/command/wifi/${peer}`,\n  payload: { led: 'yellow', reason: 'ble_dark', src: src, src_seq: srcSeq, ts: Date.now() }\n};\n",
+    "outputs": 1,
+    "x": 1110,
+    "y": 160,
+    "wires": [["mqtt-out-cmd"]]
+  },
+
+  {
+    "id": "mqtt-out-cmd",
+    "type": "mqtt out",
+    "z": "tab-shmpeg",
+    "name": "pub: command",
+    "topic": "",
+    "qos": "1",
+    "retain": "false",
+    "broker": "mqtt-broker-cfg",
+    "x": 1340,
+    "y": 120,
+    "wires": []
+  },
+
+  {
+    "id": "debug-telemetry",
+    "type": "debug",
+    "z": "tab-shmpeg",
+    "name": "debug: telemetry",
+    "active": false,
+    "complete": "payload",
+    "targetType": "msg",
+    "x": 380,
+    "y": 220,
+    "wires": []
+  }
+]

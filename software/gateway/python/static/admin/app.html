@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>网关管理 — 节点与用户</title>
+  <style>
+    :root { --bg: #0f1419; --card: #1a2332; --text: #e6edf3; --muted: #8b949e; --accent: #58a6ff; --ok: #3fb950; --err: #f85149; }
+    * { box-sizing: border-box; }
+    body { font-family: system-ui, sans-serif; background: var(--bg); color: var(--text); margin: 0; padding: 1.25rem; line-height: 1.5; }
+    a { color: var(--accent); }
+    header { display: flex; flex-wrap: wrap; align-items: center; gap: 1rem; margin-bottom: 1.5rem; }
+    h1 { font-size: 1.2rem; margin: 0; flex: 1; }
+    .card { background: var(--card); border-radius: 10px; padding: 1.25rem; margin-bottom: 1.25rem; max-width: 960px; }
+    h2 { font-size: 1rem; margin: 0 0 1rem; color: var(--muted); font-weight: 600; }
+    table { width: 100%; border-collapse: collapse; font-size: 0.875rem; }
+    th, td { text-align: left; padding: 0.5rem 0.4rem; border-bottom: 1px solid #30363d; }
+    th { color: var(--muted); font-weight: 500; }
+    button, .btn { padding: 0.4rem 0.75rem; border-radius: 6px; border: 1px solid #30363d; background: #21262d; color: var(--text); cursor: pointer; font-size: 0.8rem; }
+    button.primary { background: var(--accent); color: #0d1117; border-color: transparent; font-weight: 600; }
+    button.danger { border-color: var(--err); color: var(--err); }
+    input, select { padding: 0.45rem 0.5rem; border-radius: 6px; border: 1px solid #30363d; background: #0d1117; color: var(--text); font-size: 0.85rem; }
+    .row { display: flex; flex-wrap: wrap; gap: 0.5rem; align-items: center; margin-bottom: 0.75rem; }
+    .msg { font-size: 0.85rem; color: var(--muted); min-height: 1.2rem; }
+    .msg.bad { color: var(--err); }
+    .msg.good { color: var(--ok); }
+    .hidden { display: none; }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>网关管理台</h1>
+    <span id="who" class="msg"></span>
+    <button type="button" id="logout">退出</button>
+  </header>
+  <p class="msg"><a href="/admin/">返回登录页</a></p>
+
+  <div class="card">
+    <h2>节点列表（在线 = 最近有上行经网关；含自动发现未登记设备）</h2>
+    <p class="msg" id="nmsg"></p>
+    <div class="row">
+      <input id="n_uid" placeholder="统一 ID（唯一）" />
+      <input id="n_type" placeholder="device_type（wifi/ble）" />
+      <input id="n_native" placeholder="native_device_id" />
+      <input id="n_name" placeholder="显示名（可选）" />
+      <select id="n_tr">
+        <option value="wifi">wifi</option>
+        <option value="ble">ble</option>
+        <option value="zigbee">zigbee（预留）</option>
+        <option value="lorawan">lorawan（预留）</option>
+      </select>
+      <button type="button" class="primary" id="n_add">添加节点</button>
+    </div>
+    <div style="overflow-x:auto;">
+      <table>
+        <thead><tr><th>在线</th><th>最后上报</th><th>来源</th><th>台账ID</th><th>统一 ID</th><th>类型</th><th>Native ID</th><th>传输</th><th>显示名</th><th></th></tr></thead>
+        <tbody id="nodes_body"></tbody>
+      </table>
+    </div>
+  </div>
+
+  <div class="card hidden" id="users_card">
+    <h2>用户管理（仅管理员）</h2>
+    <p class="msg" id="umsg"></p>
+    <div class="row">
+      <input id="u_name" placeholder="新用户名" />
+      <input id="u_pass" type="password" placeholder="密码" />
+      <select id="u_role"><option value="user">user</option><option value="admin">admin</option></select>
+      <button type="button" class="primary" id="u_add">添加用户</button>
+    </div>
+    <div style="overflow-x:auto;">
+      <table>
+        <thead><tr><th>ID</th><th>用户名</th><th>角色</th><th></th></tr></thead>
+        <tbody id="users_body"></tbody>
+      </table>
+    </div>
+  </div>
+
+  <script>
+    const api = (path, opt) => fetch(path, { credentials: "same-origin", ...opt });
+
+    async function requireSession() {
+      const r = await api("/api/v1/admin/session");
+      const d = await r.json();
+      if (!d.authenticated) {
+        window.location.href = "/admin/";
+        return null;
+      }
+      return d.user;
+    }
+
+    function setMsg(el, text, good) {
+      el.textContent = text || "";
+      el.className = "msg" + (good ? " good" : text ? " bad" : "");
+    }
+
+    function fmtTime(ts) {
+      if (ts == null || ts === "") return "—";
+      const d = new Date(ts * 1000);
+      if (isNaN(d.getTime())) return "—";
+      return d.toLocaleString();
+    }
+
+    async function loadNodes() {
+      const r = await api("/api/v1/admin/nodes");
+      const d = await r.json();
+      const tb = document.getElementById("nodes_body");
+      tb.innerHTML = "";
+      if (!d.ok) { setMsg(document.getElementById("nmsg"), d.error || "加载失败"); return; }
+      const hint = d.online_grace_sec != null ? "（在线阈值 " + d.online_grace_sec + "s 内有上行）" : "";
+      setMsg(document.getElementById("nmsg"), "每 3 秒自动刷新" + hint, true);
+      for (const n of d.nodes) {
+        const online = n.online ? "是" : "否";
+        const src = n.source === "registry" ? "台账" : "发现";
+        const rid = n.registry_id != null ? String(n.registry_id) : "—";
+        const delBtn = n.registry_id != null
+          ? "<button class='danger' data-del='" + n.registry_id + "'>删除台账</button>"
+          : "";
+        const tr = document.createElement("tr");
+        tr.innerHTML = "<td>" + online + "</td><td>" + fmtTime(n.last_seen) + "</td><td>" + src + "</td><td>" + rid + "</td><td>" + escapeHtml(n.unified_id) + "</td><td>" + escapeHtml(n.device_type) + "</td><td>" + escapeHtml(n.native_device_id) + "</td><td>" + escapeHtml(n.transport) + "</td><td>" + escapeHtml(n.display_name || "") + "</td><td>" + delBtn + "</td>";
+        tb.appendChild(tr);
+      }
+      tb.querySelectorAll("[data-del]").forEach((b) => b.addEventListener("click", async () => {
+        if (!confirm("确定从台账删除？（不影响设备继续上报；仅删除登记行）")) return;
+        const id = b.getAttribute("data-del");
+        const r2 = await api("/api/v1/admin/nodes/" + id, { method: "DELETE" });
+        const d2 = await r2.json();
+        if (d2.ok) loadNodes(); else alert(d2.error || "删除失败");
+      }));
+    }
+
+    async function loadUsers() {
+      const r = await api("/api/v1/admin/users");
+      const d = await r.json();
+      if (r.status === 403) return;
+      if (!d.ok) return;
+      document.getElementById("users_card").classList.remove("hidden");
+      const tb = document.getElementById("users_body");
+      tb.innerHTML = "";
+      for (const u of d.users) {
+        const tr = document.createElement("tr");
+        tr.innerHTML = "<td>" + u.id + "</td><td>" + escapeHtml(u.username) + "</td><td>" + escapeHtml(u.role) + "</td><td><button class='danger' data-udel='" + u.id + "'>删除</button></td>";
+        tb.appendChild(tr);
+      }
+      tb.querySelectorAll("[data-udel]").forEach((b) => b.addEventListener("click", async () => {
+        if (!confirm("确定删除该用户？")) return;
+        const id = b.getAttribute("data-udel");
+        const r2 = await api("/api/v1/admin/users/" + id, { method: "DELETE" });
+        const d2 = await r2.json();
+        if (d2.ok) loadUsers(); else alert(d2.error || "删除失败");
+      }));
+    }
+
+    function escapeHtml(s) {
+      const d = document.createElement("div");
+      d.textContent = s;
+      return d.innerHTML;
+    }
+
+    document.getElementById("logout").addEventListener("click", async () => {
+      await api("/api/v1/admin/logout", { method: "POST" });
+      window.location.href = "/admin/";
+    });
+
+    document.getElementById("n_add").addEventListener("click", async () => {
+      const body = {
+        unified_id: document.getElementById("n_uid").value.trim(),
+        device_type: document.getElementById("n_type").value.trim(),
+        native_device_id: document.getElementById("n_native").value.trim(),
+        display_name: document.getElementById("n_name").value.trim(),
+        transport: document.getElementById("n_tr").value,
+      };
+      const r = await api("/api/v1/admin/nodes", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(body) });
+      const d = await r.json();
+      if (d.ok) { setMsg(document.getElementById("nmsg"), "已添加", true); loadNodes(); }
+      else setMsg(document.getElementById("nmsg"), d.error || "添加失败");
+    });
+
+    document.getElementById("u_add").addEventListener("click", async () => {
+      const body = {
+        username: document.getElementById("u_name").value.trim(),
+        password: document.getElementById("u_pass").value,
+        role: document.getElementById("u_role").value,
+      };
+      const r = await api("/api/v1/admin/users", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(body) });
+      const d = await r.json();
+      if (d.ok) { setMsg(document.getElementById("umsg"), "已添加", true); loadUsers(); }
+      else setMsg(document.getElementById("umsg"), d.error || "添加失败");
+    });
+
+    (async () => {
+      const user = await requireSession();
+      if (!user) return;
+      document.getElementById("who").textContent = "已登录：" + user.username + "（" + user.role + "）";
+      await loadNodes();
+      await loadUsers();
+      setInterval(loadNodes, 3000);
+    })();
+  </script>
+</body>
+</html>

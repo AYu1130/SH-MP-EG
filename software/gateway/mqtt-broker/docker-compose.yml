@@ -1,0 +1,59 @@
+# ==============================================================================
+# EMQX 5.x Single-Node 部署配置（用于 SH-MP-EG 网关）
+# ------------------------------------------------------------------------------
+# 镜像与官方文档一致: emqx/emqx:5.8.9
+# 用法:
+#   docker compose pull                       # 拉取镜像
+#   docker compose up -d                      # 启动
+#   docker compose logs -f emqx               # 观察日志
+#   docker compose down                       # 停止（保留 data/）
+#
+# 等价命令行（无 compose 时）:
+#   docker pull emqx/emqx:5.8.9
+#   docker run -d --name emqx \
+#     -p 1883:1883 -p 8083:8083 -p 8084:8084 -p 8883:8883 -p 18083:18083 \
+#     emqx/emqx:5.8.9
+#
+# 端口:
+#   1883  - MQTT (TCP, 明文)
+#   8083  - MQTT over WebSocket
+#   8084  - MQTT over WSS (TLS)
+#   8883  - MQTT over TLS (需自行配置证书，默认未启用)
+#   18083 - Dashboard  (默认账号 admin / public, 首次登录需修改)
+# ==============================================================================
+
+services:
+  emqx:
+    image: emqx/emqx:5.8.9
+    container_name: shmpeg-emqx
+    restart: unless-stopped
+
+    # 与官方 docker run -p ... 一致：桥接网络 + 端口映射。
+    # 本机网关 Python、mosquitto_sub、Node-RED 均使用 127.0.0.1:1883 即可。
+    ports:
+      - "1883:1883"
+      - "8083:8083"
+      - "8084:8084"
+      - "8883:8883"
+      - "18083:18083"
+
+    # ----- 可选：树莓派若坚持用 host 网络（省略 ports），可改为下方两行并注释 ports -----
+    # network_mode: host
+
+    environment:
+      - EMQX_NAME=shmpeg-emqx
+      - EMQX_HOST=127.0.0.1
+      - EMQX_ALLOW_ANONYMOUS=true
+      - EMQX_LOG__CONSOLE_HANDLER__LEVEL=warning
+      - EMQX_LOG__FILE_HANDLERS__DEFAULT__LEVEL=info
+
+    volumes:
+      - ./data:/opt/emqx/data
+      - ./log:/opt/emqx/log
+      - ./emqx.conf:/opt/emqx/etc/emqx.conf:ro
+
+    healthcheck:
+      test: ["CMD", "emqx", "ctl", "status"]
+      interval: 30s
+      timeout: 5s
+      retries: 5

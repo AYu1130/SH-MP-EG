@@ -1,0 +1,44 @@
+# ----- IDE / Editor -----
+.vscode/*
+!.vscode/settings.json
+!.vscode/launch.json
+!.vscode/extensions.json
+.idea/
+*.swp
+
+# ----- Python -----
+.venv/
+venv/
+__pycache__/
+*.py[cod]
+*.egg-info/
+.pytest_cache/
+.coverage
+htmlcov/
+.mypy_cache/
+.ruff_cache/
+
+# ----- Logs / Runtime data -----
+*.log
+logs/
+software/gateway/python/data/
+software/gateway/python/*.db
+software/gateway/python/*.sqlite*
+
+# ----- EMQX local data -----
+software/gateway/mqtt-broker/data/
+software/gateway/mqtt-broker/log/
+
+# ----- PlatformIO -----
+.pio/
+.pioenvs/
+.piolibdeps/
+
+# ----- Node-RED runtime (不提交用户私有数据) -----
+software/gateway/node-red/.node-red/
+software/gateway/node-red/node_modules/
+
+# ----- OS -----
+.DS_Store
+Thumbs.db
+desktop.ini
