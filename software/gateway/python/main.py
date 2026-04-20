@@ -134,48 +134,8 @@ async def amain(cfg: GatewayConfig) -> None:
                 slim = _compact_ble_mqtt_payload(payload)
                 line = json.dumps(slim, separators=(",", ":")) + "\n"
                 data = line.encode("utf-8")
-            # #region agent log
-            from debug_agent_log import agent_log
-
-            agent_log(
-                "H_BLE_JSON",
-                "main.py:on_command",
-                "ble_downlink_built",
-                {
-                    "device_id": device_id,
-                    "payload_keys": sorted(str(k) for k in payload.keys()),
-                    "bytes_len": len(data) if data else 0,
-                },
-                run_id="post-fix-threadsafe",
-            )
-            # #endregion
             if data is not None:
-
-                def _ble_write_done(fut) -> None:
-                    from debug_agent_log import agent_log
-
-                    try:
-                        ok = fut.result()
-                        agent_log(
-                            "H_BLE_ASYNC",
-                            "main.py:on_command",
-                            "ble_write_future_result",
-                            {"device_id": device_id, "ok": bool(ok)},
-                            run_id="post-fix-threadsafe",
-                        )
-                    except Exception as e:
-                        agent_log(
-                            "H_BLE_ASYNC",
-                            "main.py:on_command",
-                            "ble_write_future_exc",
-                            {"device_id": device_id, "err": str(e)},
-                            run_id="post-fix-threadsafe",
-                        )
-
-                rx = asyncio.run_coroutine_threadsafe(
-                    ble_recv.write(device_id, data), loop
-                )
-                rx.add_done_callback(_ble_write_done)
+                asyncio.run_coroutine_threadsafe(ble_recv.write(device_id, data), loop)
         elif device_type == "wifi" and wifi_recv is not None:
             ok = wifi_recv.write(device_id, payload)
             if not ok:
