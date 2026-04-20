@@ -100,12 +100,14 @@ async def amain(cfg: GatewayConfig) -> None:
     log = get_logger("gateway.main")
     log.info("SH-MP-EG gateway starting ...")
     log.debug("config: %s", cfg.to_dict())
+    log.warning("AGENT_DEBUG_MARKER main.py loaded (session=2d0ce5)")
 
     # paho 在独立线程回调 on_command；BLE 写入必须用主事件循环线程调度
     loop = asyncio.get_running_loop()
     # #region agent log
     try:
         from debug_agent_log import agent_log
+        from debug_agent_log import _LOG_PATH  # type: ignore
 
         agent_log(
             "H_LOG_BOOT",
@@ -113,8 +115,9 @@ async def amain(cfg: GatewayConfig) -> None:
             "debug_log_boot_marker",
             {"cwd_loop_ready": True},
         )
+        log.warning("AGENT_DEBUG_MARKER agent_log called path=%s", _LOG_PATH)
     except Exception:
-        pass
+        log.exception("AGENT_DEBUG_MARKER agent_log import/call failed")
     # #endregion
 
     # ---- 本地缓存 ---------------------------------------------------- #
