@@ -100,25 +100,9 @@ async def amain(cfg: GatewayConfig) -> None:
     log = get_logger("gateway.main")
     log.info("SH-MP-EG gateway starting ...")
     log.debug("config: %s", cfg.to_dict())
-    log.warning("AGENT_DEBUG_MARKER main.py loaded (session=2d0ce5)")
 
     # paho 在独立线程回调 on_command；BLE 写入必须用主事件循环线程调度
     loop = asyncio.get_running_loop()
-    # #region agent log
-    try:
-        from debug_agent_log import agent_log
-        from debug_agent_log import _LOG_PATH  # type: ignore
-
-        agent_log(
-            "H_LOG_BOOT",
-            "main.py:amain",
-            "debug_log_boot_marker",
-            {"cwd_loop_ready": True},
-        )
-        log.warning("AGENT_DEBUG_MARKER agent_log called path=%s", _LOG_PATH)
-    except Exception:
-        log.exception("AGENT_DEBUG_MARKER agent_log import/call failed")
-    # #endregion
 
     # ---- 本地缓存 ---------------------------------------------------- #
     cache = None
@@ -135,24 +119,6 @@ async def amain(cfg: GatewayConfig) -> None:
     # MQTT 收到 smarthome/v1/command/<type>/<id> 时会回调这里
     def on_command(device_type: str, device_id: str, payload: Dict) -> None:
         log.info("[cmd] %s/%s <- %s", device_type, device_id, payload)
-        # #region agent log
-        try:
-            from debug_agent_log import agent_log
-
-            agent_log(
-                "H_WIFI_RELEASE",
-                "main.py:on_command",
-                "command_received",
-                {
-                    "device_type": device_type,
-                    "device_id": device_id,
-                    "keys": sorted(str(k) for k in payload.keys()),
-                    "reason": payload.get("reason"),
-                },
-            )
-        except Exception:
-            pass
-        # #endregion
         if device_type == "ble" and ble_recv is not None:
             # payload 约定 {"raw_hex": "01020304"} 或 {"text": "LED:ON"}
             # 或 Node-RED 下发的 JSON 对象（beep/buzzer/auto 等）-> 整帧 UTF-8 行给 HM-10
@@ -172,23 +138,6 @@ async def amain(cfg: GatewayConfig) -> None:
                 asyncio.run_coroutine_threadsafe(ble_recv.write(device_id, data), loop)
         elif device_type == "wifi" and wifi_recv is not None:
             ok = wifi_recv.write(device_id, payload)
-            # #region agent log
-            try:
-                from debug_agent_log import agent_log
-
-                agent_log(
-                    "H_WIFI_TCP",
-                    "main.py:on_command",
-                    "wifi_write_result",
-                    {
-                        "device_id": device_id,
-                        "ok": bool(ok),
-                        "keys": sorted(str(k) for k in payload.keys()),
-                    },
-                )
-            except Exception:
-                pass
-            # #endregion
             if not ok:
                 log.warning("wifi command dropped (no live TCP): %s/%s", device_type, device_id)
         else:

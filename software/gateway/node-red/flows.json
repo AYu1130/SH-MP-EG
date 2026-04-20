@@ -62,7 +62,7 @@
     "outputs": 2,
     "x": 640,
     "y": 120,
-    "wires": [["rule-temp-high"], ["rule-light-low", "rule-light-bright"]]
+    "wires": [["rule-temp-high"], ["rule-light-low"]]
   },
 
   {
@@ -98,12 +98,12 @@
     "id": "rule-light-low",
     "type": "function",
     "z": "tab-shmpeg",
-    "name": "ble dark? (l<100 或 d==1)",
-    "func": "const p = (msg.payload && msg.payload.payload) || {};\nconst light = p.light !== undefined ? p.light : p.l;\nconst dark  = (p.dark === true) || (p.d === 1) || (typeof light === 'number' && light < 100);\nreturn dark ? msg : null;\n",
-    "outputs": 1,
+    "name": "ble light state machine (hysteresis)",
+    "func": "const p = (msg.payload && msg.payload.payload) || {};\nif (p.keepalive) return null;\nconst light = (typeof p.light === 'number') ? p.light : ((typeof p.l === 'number') ? p.l : undefined);\nlet prev = flow.get('ble_dark_state');\nif (prev === undefined) prev = false;\nlet next = prev;\nif (typeof light === 'number') {\n  if (light < 70) next = true;\n  else if (light > 130) next = false;\n} else if (p.dark === true || p.d === 1) {\n  next = true;\n} else if (p.dark === false || p.d === 0) {\n  next = false;\n}\nflow.set('ble_dark_state', next);\nif (!prev && next) return [msg, null];\nif (prev && !next) return [null, msg];\nreturn null;\n",
+    "outputs": 2,
     "x": 870,
     "y": 160,
-    "wires": [["build-wifi-led"]]
+    "wires": [["build-wifi-led"], ["build-wifi-auto"]]
   },
 
   {
