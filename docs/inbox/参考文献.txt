@@ -1,0 +1,15 @@
+[1] 杨飞宇. 面向智能家居的边缘智能网关的研究与设计[D]. 重庆理工大学, 2023.
+[2] 吴磊, 朱杰. 基于家庭多协议网关通信协议的设计与实现[J]. 计算机技术与发展, 2017, 27(9): 150-154.
+[3] 刘廷. 基于有线、无线通信技术的物联网智能家居系统[J]. 长江信息通信, 2022, 35(05): 186-188.
+[4] 葛悦涛, 尹晓桐. 边缘计算的发展趋势综述[J]. 无人系统技术, 2019, 2(02): 60-64.
+[5] 王哲. 边缘计算发展现状与趋势展望[J]. 自动化博览, 2021, 38(02): 22-29.
+[6] 杨帆. 浅谈智慧家居的移动物联网系统设计与应用[J]. 日用电器, 2021(11): 141-144.
+[7]刘亮亮,王兴,王国庆,等.基于树莓派与MQTT的智能网关设计[J].机电工程技术,2024,53(08):89-91+149.
+[8]王猛.多协议网关与智能家居的通信与控制[D].北方工业大学,2017.
+[9]方纪磊.支持边缘计算任务的物联网网关系统的设计与实现[D].西安电子科技大学,2023.DOI:10.27389/d.cnki.gxadu.2023.003341.
+[10]王琦锋.基于MQTT和ESP-NOW的智能家居监测与联动系统[D].宁夏大学,2023.DOI:10.27257/d.cnki.gnxhc.2023.000163.
+[11]Desai, P., Sheth, A., & Anantharam, P. Semantic gateway as a service architecture for IoT interoperability[C]. 2015 IEEE International Conference on Edge Computing (EDGE). IEEE, 2015: 265-272.
+[12]Perera, C., Zaslavsky, A., Christen, P., & Georgakopoulos, D. Sensing as a service model for smart cities supported by the internet of things[J]. Transactions on Emerging Telecommunications Technologies, 2014, 25(1): 81-93.
+[13]Li, Z., Zou, D., Xu, S., et al. VulPecker: an automated vulnerability detection system based on code similarity analysis[C]. Proceedings of the 32nd Annual Conference on Computer Security Applications. ACM, 2016: 201-213.
+[14]Ray, P. P. A survey on Internet of Things architectures[J]. Journal of King Saud University - Computer and Information Sciences, 2018, 30(3): 291-319.
+[15]Stojkovic, R., Gligorijevic, J., & Okanovic, D. Design and implementation of a smart home gateway[J]. Proceedings of the 2018 IEEE 26th International Scientific Conference Electronics (ET). IEEE, 2018: 1-4.

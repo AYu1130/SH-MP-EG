@@ -1,0 +1,127 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 740 440" width="160mm" height="95mm">
+  <defs>
+    <style>
+      text { font-family: SimSun, SimHei, 'Microsoft YaHei', Arial, sans-serif; }
+    </style>
+  </defs>
+
+  <rect width="740" height="440" fill="#FFFFFF" stroke="none"/>
+
+  <!-- ============================================================ -->
+  <!-- 连接线（先绘制，置于底层）                                    -->
+  <!-- ============================================================ -->
+
+  <!-- PC → Router: LAN -->
+  <line x1="185" y1="38" x2="415" y2="38" stroke="#4A5568" stroke-width="1.6"/>
+  <!-- 箭头 -->
+  <polyline points="410,34 415,38 410,42" fill="none" stroke="#4A5568" stroke-width="1.6"/>
+
+  <!-- Router → RPi: Ethernet (直角路径) -->
+  <polyline points="500,60 500,88 370,88 370,110" fill="none" stroke="#4A5568" stroke-width="1.6"/>
+  <!-- 箭头 -->
+  <polyline points="366,106 370,110 374,106" fill="none" stroke="#4A5568" stroke-width="1.6"/>
+
+  <!-- RPi → ESP32: Wi-Fi (直角虚线) -->
+  <polyline points="315,212 315,240 155,240 155,268" fill="none" stroke="#C0392B" stroke-width="1.6" stroke-dasharray="6,4"/>
+  <!-- 双箭头 -->
+  <polyline points="151,264 155,268 159,264" fill="none" stroke="#C0392B" stroke-width="1.6"/>
+  <polyline points="311,208 315,212 319,208" fill="none" stroke="#C0392B" stroke-width="1.6"/>
+
+  <!-- RPi → STM32: BLE (直角虚线) -->
+  <polyline points="425,212 425,242 582,242 582,268" fill="none" stroke="#8E44AD" stroke-width="1.6" stroke-dasharray="6,4"/>
+  <!-- 双箭头 -->
+  <polyline points="578,264 582,268 586,264" fill="none" stroke="#8E44AD" stroke-width="1.6"/>
+  <polyline points="421,208 425,212 429,208" fill="none" stroke="#8E44AD" stroke-width="1.6"/>
+
+  <!-- ============================================================ -->
+  <!-- 连接标签                                                      -->
+  <!-- ============================================================ -->
+
+  <rect x="248" y="25" width="42" height="20" rx="3" fill="#FFFFFF" stroke="none"/>
+  <text x="269" y="40" font-size="12pt" fill="#4A5568" text-anchor="middle">LAN</text>
+
+  <text x="438" y="78" font-size="12pt" fill="#4A5568" text-anchor="start">Ethernet</text>
+
+  <text x="225" y="230" font-size="12pt" fill="#C0392B" text-anchor="middle">Wi-Fi</text>
+
+  <text x="510" y="232" font-size="12pt" fill="#8E44AD" text-anchor="middle">BLE</text>
+
+  <!-- ============================================================ -->
+  <!-- 上位机 PC                                                     -->
+  <!-- ============================================================ -->
+
+  <rect x="60" y="16" width="125" height="44" rx="6" fill="#F0F4F8" stroke="#2C5282" stroke-width="1.8"/>
+  <rect x="60" y="16" width="125" height="14" rx="6" fill="#2C5282"/>
+  <rect x="60" y="23" width="125" height="7" fill="#2C5282"/>
+  <text x="122" y="43" font-size="12pt" fill="#1A202C" text-anchor="middle" font-weight="bold">上位机 (PC)</text>
+
+  <!-- ============================================================ -->
+  <!-- 路由器 (Wi-Fi AP)                                             -->
+  <!-- ============================================================ -->
+
+  <rect x="320" y="16" width="150" height="44" rx="6" fill="#F0F4F8" stroke="#2B6CB0" stroke-width="1.8"/>
+  <rect x="320" y="16" width="150" height="14" rx="6" fill="#2B6CB0"/>
+  <rect x="320" y="23" width="150" height="7" fill="#2B6CB0"/>
+  <text x="395" y="43" font-size="12pt" fill="#1A202C" text-anchor="middle" font-weight="bold">路由器 (Wi-Fi AP)</text>
+
+  <!-- ============================================================ -->
+  <!-- 树莓派 4B 边缘智能网关                                         -->
+  <!-- ============================================================ -->
+
+  <rect x="230" y="108" width="280" height="106" rx="8" fill="#FFFFFF" stroke="#C0392B" stroke-width="2"/>
+  <rect x="230" y="108" width="280" height="22" rx="8" fill="#C0392B"/>
+  <rect x="230" y="120" width="280" height="10" fill="#C0392B"/>
+  <text x="370" y="124" font-size="12pt" fill="#FFFFFF" text-anchor="middle" font-weight="bold">Raspberry Pi 4B 边缘智能网关</text>
+
+  <text x="246" y="148" font-size="10.5pt" fill="#4A5568">硬件接口：</text>
+  <text x="246" y="168" font-size="10.5pt" fill="#2D3748">• GbE 千兆以太网</text>
+  <text x="246" y="186" font-size="10.5pt" fill="#2D3748">• Wi-Fi 2.4/5GHz (BCM43455)</text>
+  <text x="246" y="204" font-size="10.5pt" fill="#2D3748">• Bluetooth 5.0 BLE (CSR 4.0)</text>
+
+  <text x="436" y="148" font-size="10.5pt" fill="#4A5568">外设与存储：</text>
+  <text x="436" y="168" font-size="10.5pt" fill="#2D3748">• USB-A (预留 ZigBee/BLE)</text>
+  <text x="436" y="186" font-size="10.5pt" fill="#2D3748">• GPIO (预留报警 LED/蜂鸣器)</text>
+  <text x="436" y="204" font-size="10.5pt" fill="#2D3748">• microSD (系统盘 &amp; SQLite)</text>
+
+  <!-- ============================================================ -->
+  <!-- ESP32-S3 Wi-Fi 节点                                            -->
+  <!-- ============================================================ -->
+
+  <rect x="55" y="268" width="190" height="82" rx="6" fill="#FFFFFF" stroke="#27AE60" stroke-width="1.8"/>
+  <rect x="55" y="268" width="190" height="22" rx="6" fill="#27AE60"/>
+  <rect x="55" y="280" width="190" height="10" fill="#27AE60"/>
+  <text x="150" y="284" font-size="12pt" fill="#FFFFFF" text-anchor="middle" font-weight="bold">ESP32-S3 Wi-Fi 节点</text>
+
+  <text x="68" y="308" font-size="10.5pt" fill="#4A5568">传感器/执行器：</text>
+  <text x="68" y="328" font-size="10.5pt" fill="#2D3748">• DHT11 温湿度传感器 (GPIO4)</text>
+  <text x="68" y="346" font-size="10.5pt" fill="#2D3748">• 有源蜂鸣器 (GPIO5)</text>
+
+  <!-- ============================================================ -->
+  <!-- STM32F103ZET6 + HM-10 BLE 节点                                  -->
+  <!-- ============================================================ -->
+
+  <rect x="475" y="268" width="215" height="82" rx="6" fill="#FFFFFF" stroke="#E67E22" stroke-width="1.8"/>
+  <rect x="475" y="268" width="215" height="22" rx="6" fill="#E67E22"/>
+  <rect x="475" y="280" width="215" height="10" fill="#E67E22"/>
+  <text x="582" y="284" font-size="12pt" fill="#FFFFFF" text-anchor="middle" font-weight="bold">STM32F103ZET6 + HM-10 BLE 节点</text>
+
+  <text x="488" y="308" font-size="10.5pt" fill="#4A5568">传感器/执行器/通信：</text>
+  <text x="488" y="328" font-size="10.5pt" fill="#2D3748">• GY-302 BH1750 光照传感器 (I²C)</text>
+  <text x="488" y="346" font-size="10.5pt" fill="#2D3748">• RGB LED (PE0/PE1/PE2)</text>
+
+  <!-- ============================================================ -->
+  <!-- 图例                                                          -->
+  <!-- ============================================================ -->
+
+  <text x="60" y="388" font-size="9pt" fill="#718096" font-weight="bold">图例：</text>
+
+  <line x1="120" y1="384" x2="160" y2="384" stroke="#4A5568" stroke-width="1.6"/>
+  <text x="167" y="389" font-size="9pt" fill="#718096">有线连接 (Ethernet/UART/I²C/GPIO)</text>
+
+  <line x1="384" y1="384" x2="424" y2="384" stroke="#C0392B" stroke-width="1.6" stroke-dasharray="6,4"/>
+  <text x="431" y="389" font-size="9pt" fill="#718096">Wi-Fi 2.4GHz</text>
+
+  <line x1="560" y1="384" x2="600" y2="384" stroke="#8E44AD" stroke-width="1.6" stroke-dasharray="6,4"/>
+  <text x="607" y="389" font-size="9pt" fill="#718096">BLE 5.0</text>
+
+</svg>

@@ -1,0 +1,177 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 680 520" width="160mm" height="122mm">
+  <defs>
+    <style>
+      text { font-family: SimSun, SimHei, 'Microsoft YaHei', Arial, sans-serif; }
+    </style>
+  </defs>
+
+  <rect width="680" height="520" fill="#FFFFFF"/>
+
+  <!-- ============================================================ -->
+  <!-- 第1层：应用服务层                                              -->
+  <!-- ============================================================ -->
+
+  <rect x="64" y="18" width="552" height="80" rx="6" fill="#ECF2FA" stroke="#4A6FB0" stroke-width="1.6"/>
+  <rect x="64" y="18" width="552" height="20" rx="6" fill="#4A6FB0"/>
+  <rect x="64" y="28" width="552" height="10" fill="#4A6FB0"/>
+  <text x="76" y="33" font-size="12pt" fill="#FFFFFF" font-weight="bold">应用服务层 (Application Service Layer)</text>
+
+  <rect x="80" y="48" width="115" height="40" rx="4" fill="#FFFFFF" stroke="#4A6FB0" stroke-width="1.2"/>
+  <text x="137" y="64" font-size="11pt" fill="#2D3748" text-anchor="middle" font-weight="bold">Flask Web UI</text>
+  <text x="137" y="79" font-size="9pt" fill="#718096" text-anchor="middle">(端口 5000)</text>
+
+  <rect x="210" y="48" width="115" height="40" rx="4" fill="#FFFFFF" stroke="#4A6FB0" stroke-width="1.2"/>
+  <text x="267" y="64" font-size="11pt" fill="#2D3748" text-anchor="middle" font-weight="bold">Node-RED</text>
+  <text x="267" y="79" font-size="9pt" fill="#718096" text-anchor="middle">(端口 1880)</text>
+
+  <rect x="340" y="48" width="115" height="40" rx="4" fill="#FFFFFF" stroke="#4A6FB0" stroke-width="1.2"/>
+  <text x="397" y="64" font-size="11pt" fill="#2D3748" text-anchor="middle" font-weight="bold">EMQX Dashboard</text>
+  <text x="397" y="79" font-size="9pt" fill="#718096" text-anchor="middle">(端口 18083)</text>
+
+  <rect x="470" y="48" width="130" height="40" rx="4" fill="#FFFFFF" stroke="#4A6FB0" stroke-width="1.2"/>
+  <text x="535" y="64" font-size="11pt" fill="#2D3748" text-anchor="middle" font-weight="bold">REST API 接口</text>
+  <text x="535" y="79" font-size="9pt" fill="#718096" text-anchor="middle">(Jinja2 模板)</text>
+
+  <!-- ============================================================ -->
+  <!-- 第1→2 层间双向箭头                                            -->
+  <!-- ============================================================ -->
+
+  <polyline points="340,98 340,112 553,112 553,120" fill="none" stroke="#4A6FB0" stroke-width="1" stroke-dasharray="3,2"/>
+  <polygon points="550,116 553,120 556,116" fill="#4A6FB0" stroke="none"/>
+
+  <!-- ============================================================ -->
+  <!-- 第2层：网络层 (MQTT Broker)                                    -->
+  <!-- ============================================================ -->
+
+  <rect x="64" y="120" width="552" height="80" rx="6" fill="#F5F8E5" stroke="#5A8A30" stroke-width="1.6"/>
+  <rect x="64" y="120" width="552" height="20" rx="6" fill="#5A8A30"/>
+  <rect x="64" y="130" width="552" height="10" fill="#5A8A30"/>
+  <text x="76" y="135" font-size="12pt" fill="#FFFFFF" font-weight="bold">网络层 (Network Layer)</text>
+
+  <rect x="80" y="148" width="152" height="42" rx="4" fill="#FFFFFF" stroke="#5A8A30" stroke-width="1.2"/>
+  <text x="156" y="163" font-size="11pt" fill="#2D3748" text-anchor="middle" font-weight="bold">EMQX MQTT Broker</text>
+  <text x="156" y="180" font-size="9pt" fill="#718096" text-anchor="middle">(Docker 部署，消息路由与转发)</text>
+
+  <rect x="250" y="148" width="115" height="42" rx="4" fill="#FFFFFF" stroke="#5A8A30" stroke-width="1.2"/>
+  <text x="307" y="163" font-size="11pt" fill="#2D3748" text-anchor="middle" font-weight="bold">主题管理</text>
+  <text x="307" y="180" font-size="9pt" fill="#718096" text-anchor="middle">(gateway/devices)</text>
+
+  <rect x="382" y="148" width="115" height="42" rx="4" fill="#FFFFFF" stroke="#5A8A30" stroke-width="1.2"/>
+  <text x="439" y="163" font-size="11pt" fill="#2D3748" text-anchor="middle" font-weight="bold">QoS 保障</text>
+  <text x="439" y="180" font-size="9pt" fill="#718096" text-anchor="middle">(QoS 0 / 1 / 2)</text>
+
+  <rect x="514" y="148" width="88" height="42" rx="4" fill="#FFFFFF" stroke="#5A8A30" stroke-width="1.2"/>
+  <text x="558" y="163" font-size="11pt" fill="#2D3748" text-anchor="middle" font-weight="bold">ACL 认证</text>
+  <text x="558" y="180" font-size="9pt" fill="#718096" text-anchor="middle">(权限控制)</text>
+
+  <!-- ============================================================ -->
+  <!-- 第2→3 层间双向箭头                                            -->
+  <!-- ============================================================ -->
+
+  <polyline points="340,200 340,214 553,214 553,222" fill="none" stroke="#5A8A30" stroke-width="1" stroke-dasharray="3,2"/>
+  <polygon points="550,218 553,222 556,218" fill="#5A8A30" stroke="none"/>
+
+  <!-- ============================================================ -->
+  <!-- 第3层：边缘层 (Edge Gateway Layer)                             -->
+  <!-- ============================================================ -->
+
+  <rect x="64" y="222" width="552" height="120" rx="6" fill="#FEF3E8" stroke="#D08020" stroke-width="1.6"/>
+  <rect x="64" y="222" width="552" height="20" rx="6" fill="#D08020"/>
+  <rect x="64" y="232" width="552" height="10" fill="#D08020"/>
+  <text x="76" y="237" font-size="12pt" fill="#FFFFFF" font-weight="bold">边缘层 (Edge Gateway Layer) — Raspberry Pi 4B</text>
+
+  <rect x="80" y="252" width="126" height="80" rx="4" fill="#FFFFFF" stroke="#D08020" stroke-width="1.2"/>
+  <text x="143" y="270" font-size="11pt" fill="#D08020" text-anchor="middle" font-weight="bold">Wi-Fi 适配器</text>
+  <text x="143" y="290" font-size="9pt" fill="#4A5568" text-anchor="middle">Flask TCP Server</text>
+  <text x="143" y="306" font-size="9pt" fill="#4A5568" text-anchor="middle">HTTP POST 接收</text>
+  <text x="143" y="322" font-size="9pt" fill="#4A5568" text-anchor="middle">多线程并发处理</text>
+
+  <rect x="218" y="252" width="126" height="80" rx="4" fill="#FFFFFF" stroke="#D08020" stroke-width="1.2"/>
+  <text x="281" y="270" font-size="11pt" fill="#D08020" text-anchor="middle" font-weight="bold">BLE 适配器</text>
+  <text x="281" y="290" font-size="9pt" fill="#4A5568" text-anchor="middle">Python Bleak 库</text>
+  <text x="281" y="306" font-size="9pt" fill="#4A5568" text-anchor="middle">异步扫描/连接</text>
+  <text x="281" y="322" font-size="9pt" fill="#4A5568" text-anchor="middle">GATT 通知订阅</text>
+
+  <rect x="356" y="252" width="126" height="80" rx="4" fill="#FFFFFF" stroke="#D08020" stroke-width="1.2"/>
+  <text x="419" y="270" font-size="11pt" fill="#D08020" text-anchor="middle" font-weight="bold">协议转换与路由</text>
+  <text x="419" y="290" font-size="9pt" fill="#4A5568" text-anchor="middle">统一 JSON 格式转换</text>
+  <text x="419" y="306" font-size="9pt" fill="#4A5568" text-anchor="middle">Paho-MQTT 发布</text>
+  <text x="419" y="322" font-size="9pt" fill="#4A5568" text-anchor="middle">主题映射与路由</text>
+
+  <rect x="494" y="252" width="108" height="80" rx="4" fill="#FFFFFF" stroke="#D08020" stroke-width="1.2"/>
+  <text x="548" y="270" font-size="11pt" fill="#D08020" text-anchor="middle" font-weight="bold">本地联动</text>
+  <text x="548" y="290" font-size="9pt" fill="#4A5568" text-anchor="middle">Node-RED 规则</text>
+  <text x="548" y="306" font-size="9pt" fill="#4A5568" text-anchor="middle">离线 SQLite 缓存</text>
+  <text x="548" y="322" font-size="9pt" fill="#4A5568" text-anchor="middle">断网补传机制</text>
+
+  <!-- ============================================================ -->
+  <!-- 第3→4 层间双向箭头                                            -->
+  <!-- ============================================================ -->
+
+  <polyline points="340,342 340,356 553,356 553,364" fill="none" stroke="#D08020" stroke-width="1" stroke-dasharray="3,2"/>
+  <polygon points="550,360 553,364 556,360" fill="#D08020" stroke="none"/>
+
+  <!-- ============================================================ -->
+  <!-- 第4层：感知层 (Perception Layer)                               -->
+  <!-- ============================================================ -->
+
+  <rect x="64" y="364" width="552" height="80" rx="6" fill="#F0F8F4" stroke="#27AE60" stroke-width="1.6"/>
+  <rect x="64" y="364" width="552" height="20" rx="6" fill="#27AE60"/>
+  <rect x="64" y="374" width="552" height="10" fill="#27AE60"/>
+  <text x="76" y="379" font-size="12pt" fill="#FFFFFF" font-weight="bold">感知层 (Perception Layer)</text>
+
+  <rect x="80" y="394" width="265" height="40" rx="4" fill="#FFFFFF" stroke="#27AE60" stroke-width="1.2"/>
+  <text x="212" y="410" font-size="11pt" fill="#2D3748" text-anchor="middle" font-weight="bold">ESP32-S3 Wi-Fi 节点</text>
+  <text x="212" y="426" font-size="9pt" fill="#718096" text-anchor="middle">DHT11 温湿度 + 蜂鸣器 | HTTP POST 上报</text>
+
+  <rect x="355" y="394" width="247" height="40" rx="4" fill="#FFFFFF" stroke="#27AE60" stroke-width="1.2"/>
+  <text x="478" y="410" font-size="11pt" fill="#2D3748" text-anchor="middle" font-weight="bold">STM32F103ZET6 + HM-10 BLE 节点</text>
+  <text x="478" y="426" font-size="9pt" fill="#718096" text-anchor="middle">BH1750 光照 + RGB LED | BLE GATT 广播</text>
+
+  <!-- ============================================================ -->
+  <!-- 左侧：上行数据流箭头                                          -->
+  <!-- ============================================================ -->
+
+  <polygon points="36,404 44,398 44,410" fill="#2E7D32" stroke="none"/>
+  <line x1="44" y1="404" x2="44" y2="58" stroke="#2E7D32" stroke-width="3"/>
+  <polygon points="44,404 44,58 36,64 52,64" fill="none"/>
+  <!-- 重新画 -->
+  <polygon points="36,58 44,50 52,58" fill="#2E7D32" stroke="none"/>
+  <rect x="12" y="200" width="22" height="84" rx="3" fill="#FFFFFF" stroke="#2E7D32" stroke-width="1"/>
+  <text x="23" y="216" font-size="10pt" fill="#2E7D32" text-anchor="middle" font-weight="bold" writing-mode="tb">上行数据</text>
+  <text x="23" y="250" font-size="10pt" fill="#2E7D32" text-anchor="middle" font-weight="bold" writing-mode="tb">(传感器上报)</text>
+
+  <!-- ============================================================ -->
+  <!-- 右侧：下行控制流箭头                                          -->
+  <!-- ============================================================ -->
+
+  <polygon points="644,58 636,50 636,66" fill="#C62828" stroke="none"/>
+  <line x1="636" y1="58" x2="636" y2="404" stroke="#C62828" stroke-width="3"/>
+  <polygon points="644,404 636,412 628,404" fill="#C62828" stroke="none"/>
+  <rect x="622" y="200" width="22" height="84" rx="3" fill="#FFFFFF" stroke="#C62828" stroke-width="1"/>
+  <text x="633" y="216" font-size="10pt" fill="#C62828" text-anchor="middle" font-weight="bold" writing-mode="tb">下行控制</text>
+  <text x="633" y="254" font-size="10pt" fill="#C62828" text-anchor="middle" font-weight="bold" writing-mode="tb">(动作指令)</text>
+
+  <!-- ============================================================ -->
+  <!-- 图例                                                          -->
+  <!-- ============================================================ -->
+
+  <text x="64" y="472" font-size="9pt" fill="#718096" font-weight="bold">图例：</text>
+
+  <line x1="120" y1="468" x2="156" y2="468" stroke="#9AAAB8" stroke-width="1.2" stroke-dasharray="3,2"/>
+  <text x="162" y="473" font-size="9pt" fill="#718096">层间接口 (HTTP / MQTT / JSON)</text>
+
+  <line x1="354" y1="468" x2="388" y2="468" stroke="#2E7D32" stroke-width="3"/>
+  <text x="394" y="473" font-size="9pt" fill="#718096">上行数据流 (传感器上报)</text>
+
+  <line x1="554" y1="468" x2="588" y2="468" stroke="#C62828" stroke-width="3"/>
+  <text x="594" y="473" font-size="9pt" fill="#718096">下行控制流 (动作指令)</text>
+
+  <!-- ============================================================ -->
+  <!-- 底部标注                                                      -->
+  <!-- ============================================================ -->
+
+  <rect x="64" y="485" width="552" height="26" rx="4" fill="#F7FAFC" stroke="#CBD5E0" stroke-width="0.8"/>
+  <text x="340" y="502" font-size="9pt" fill="#718096" text-anchor="middle">横切关注点：安全认证 (ACL / API Key) | 可观测性 (EMQX Metrics / Node-RED Debug) | 本地自治 (离线缓存 / 断网补传)</text>
+
+</svg>

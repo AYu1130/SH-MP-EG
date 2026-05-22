@@ -3,132 +3,562 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>网关管理 — 节点与用户</title>
+  <title>SH-MP-EG 网关管理台</title>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/mqtt/5.6.2/mqtt.min.js"></script>
   <style>
-    :root { --bg: #0f1419; --card: #1a2332; --text: #e6edf3; --muted: #8b949e; --accent: #58a6ff; --ok: #3fb950; --err: #f85149; }
-    * { box-sizing: border-box; }
-    body { font-family: system-ui, sans-serif; background: var(--bg); color: var(--text); margin: 0; padding: 1.25rem; line-height: 1.5; }
-    a { color: var(--accent); }
-    header { display: flex; flex-wrap: wrap; align-items: center; gap: 1rem; margin-bottom: 1.5rem; }
-    h1 { font-size: 1.2rem; margin: 0; flex: 1; }
-    .card { background: var(--card); border-radius: 10px; padding: 1.25rem; margin-bottom: 1.25rem; max-width: 960px; }
-    h2 { font-size: 1rem; margin: 0 0 1rem; color: var(--muted); font-weight: 600; }
-    table { width: 100%; border-collapse: collapse; font-size: 0.875rem; }
-    th, td { text-align: left; padding: 0.5rem 0.4rem; border-bottom: 1px solid #30363d; }
-    th { color: var(--muted); font-weight: 500; }
-    button, .btn { padding: 0.4rem 0.75rem; border-radius: 6px; border: 1px solid #30363d; background: #21262d; color: var(--text); cursor: pointer; font-size: 0.8rem; }
+    :root {
+      --bg: #0f1419; --card: #1a2332; --text: #e6edf3; --muted: #8b949e;
+      --accent: #58a6ff; --ok: #3fb950; --err: #f85149; --warn: #d29922;
+      --border: #30363d;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: system-ui, sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; }
+    header { display: flex; flex-wrap: wrap; align-items: center; gap: 1rem; padding: 1rem 1.5rem; background: var(--card); border-bottom: 1px solid var(--border); position: sticky; top: 0; z-index: 10; }
+    h1 { font-size: 1.15rem; flex: 1; }
+    .nav { display: flex; gap: 0.5rem; }
+    .nav button { padding: 0.45rem 0.9rem; border-radius: 6px; border: 1px solid var(--border); background: #21262d; color: var(--text); cursor: pointer; font-size: 0.8rem; transition: .15s; }
+    .nav button:hover, .nav button.active { background: var(--accent); color: #0d1117; border-color: transparent; }
+    .logout-btn { background: transparent !important; color: var(--err) !important; border-color: var(--err) !important; }
+    .logout-btn:hover { background: var(--err) !important; color: white !important; }
+
+    .page { display: none; padding: 1.5rem; max-width: 1200px; margin: 0 auto; }
+    .page.active { display: block; }
+
+    .card { background: var(--card); border-radius: 10px; padding: 1.25rem; margin-bottom: 1.25rem; border: 1px solid var(--border); }
+    h2 { font-size: 1rem; margin-bottom: 1rem; color: var(--muted); font-weight: 600; display: flex; align-items: center; gap: 0.5rem; }
+    .badge { display: inline-block; padding: 0.15rem 0.5rem; border-radius: 12px; font-size: 0.7rem; font-weight: 600; }
+    .badge.ok { background: #1a3d28; color: var(--ok); }
+    .badge.err { background: #3d1a1a; color: var(--err); }
+    .badge.warn { background: #3d351a; color: var(--warn); }
+
+    table { width: 100%; border-collapse: collapse; font-size: 0.85rem; }
+    th, td { text-align: left; padding: 0.55rem 0.5rem; border-bottom: 1px solid var(--border); }
+    th { color: var(--muted); font-weight: 500; font-size: 0.78rem; text-transform: uppercase; }
+
+    button.btn { padding: 0.4rem 0.8rem; border-radius: 6px; border: 1px solid var(--border); background: #21262d; color: var(--text); cursor: pointer; font-size: 0.8rem; transition: .15s; }
     button.primary { background: var(--accent); color: #0d1117; border-color: transparent; font-weight: 600; }
     button.danger { border-color: var(--err); color: var(--err); }
-    input, select { padding: 0.45rem 0.5rem; border-radius: 6px; border: 1px solid #30363d; background: #0d1117; color: var(--text); font-size: 0.85rem; }
+    button.danger:hover { background: var(--err); color: white; }
+    button.warn { border-color: var(--warn); color: var(--warn); }
+    button.warn:hover { background: var(--warn); color: #0d1117; }
+    button.small { padding: 0.25rem 0.5rem; font-size: 0.72rem; }
+
+    input, select { padding: 0.45rem 0.55rem; border-radius: 6px; border: 1px solid var(--border); background: #0d1117; color: var(--text); font-size: 0.85rem; }
+    input:focus, select:focus { outline: 2px solid var(--accent); border-color: transparent; }
+
     .row { display: flex; flex-wrap: wrap; gap: 0.5rem; align-items: center; margin-bottom: 0.75rem; }
     .msg { font-size: 0.85rem; color: var(--muted); min-height: 1.2rem; }
     .msg.bad { color: var(--err); }
     .msg.good { color: var(--ok); }
-    .hidden { display: none; }
+
+    .dashboard-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 1rem; margin-bottom: 1rem; }
+    .gauge-card { background: #0d1117; border-radius: 8px; padding: 1rem; text-align: center; border: 1px solid var(--border); }
+    .gauge-label { font-size: 0.72rem; color: var(--muted); margin-bottom: 0.4rem; text-transform: uppercase; letter-spacing: 0.05em; }
+    .gauge-value { font-size: 2.2rem; font-weight: 700; line-height: 1.1; }
+    .gauge-unit { font-size: 0.75rem; color: var(--muted); }
+    .gauge-value.normal { color: var(--ok); }
+    .gauge-value.warning { color: var(--warn); }
+    .gauge-value.danger { color: var(--err); }
+
+    .status-row { display: flex; gap: 1rem; flex-wrap: wrap; }
+    .status-chip { flex: 1; min-width: 140px; background: #0d1117; border-radius: 8px; padding: 0.85rem 1rem; border: 1px solid var(--border); display: flex; align-items: center; gap: 0.75rem; }
+    .status-dot { width: 12px; height: 12px; border-radius: 50%; flex-shrink: 0; }
+    .status-dot.on { background: var(--ok); box-shadow: 0 0 8px var(--ok); }
+    .status-dot.off { background: var(--muted); }
+    .status-dot.active { background: var(--err); box-shadow: 0 0 8px var(--err); animation: pulse 1s infinite; }
+    @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.4; } }
+
+    .control-group { display: flex; flex-wrap: wrap; gap: 1rem; align-items: flex-start; }
+    .control-box { flex: 1; min-width: 220px; background: #0d1117; border-radius: 8px; padding: 1rem; border: 1px solid var(--border); }
+    .control-box h3 { font-size: 0.85rem; color: var(--muted); margin-bottom: 0.75rem; }
+    .color-btns { display: flex; flex-wrap: wrap; gap: 0.5rem; margin-bottom: 0.5rem; }
+    .color-btn { width: 36px; height: 36px; border-radius: 50%; border: 2px solid transparent; cursor: pointer; transition: .15s; }
+    .color-btn:hover { transform: scale(1.15); border-color: white; }
+    .color-btn:active { transform: scale(0.95); }
+    .color-btn[data-color="red"] { background: #f85149; }
+    .color-btn[data-color="green"] { background: #3fb950; }
+    .color-btn[data-color="blue"] { background: #58a6ff; }
+    .color-btn[data-color="yellow"] { background: #d29922; }
+    .color-btn[data-color="white"] { background: #e6edf3; }
+    .color-btn[data-color="off"] { background: #30363d; border: 2px dashed #484f58; }
+
+    .dev-select { max-width: 100%; margin-bottom: 0.75rem; }
+
+    .hidden { display: none !important; }
+    .conn-status { font-size: 0.75rem; display: flex; align-items: center; gap: 0.35rem; }
   </style>
 </head>
 <body>
   <header>
-    <h1>网关管理台</h1>
+    <h1>SH-MP-EG 智能家居网关管理台</h1>
+    <span class="conn-status" id="mqtt-status"><span class="status-dot off"></span> MQTT 未连接</span>
     <span id="who" class="msg"></span>
-    <button type="button" id="logout">退出</button>
-  </header>
-  <p class="msg"><a href="/admin/">返回登录页</a></p>
-
-  <div class="card">
-    <h2>节点列表（在线 = 最近有上行经网关；含自动发现未登记设备）</h2>
-    <p class="msg" id="nmsg"></p>
-    <div class="row">
-      <input id="n_uid" placeholder="统一 ID（唯一）" />
-      <input id="n_type" placeholder="device_type（wifi/ble）" />
-      <input id="n_native" placeholder="native_device_id" />
-      <input id="n_name" placeholder="显示名（可选）" />
-      <select id="n_tr">
-        <option value="wifi">wifi</option>
-        <option value="ble">ble</option>
-        <option value="zigbee">zigbee（预留）</option>
-        <option value="lorawan">lorawan（预留）</option>
-      </select>
-      <button type="button" class="primary" id="n_add">添加节点</button>
+    <div class="nav">
+      <button id="nav-dash" class="active">仪表盘</button>
+      <button id="nav-nodes">节点管理</button>
+      <button id="nav-users">用户管理</button>
+      <button id="nav-control">设备控制</button>
+      <button id="logout" class="logout-btn">退出</button>
     </div>
-    <div style="overflow-x:auto;">
-      <table>
-        <thead><tr><th>在线</th><th>最后上报</th><th>来源</th><th>台账ID</th><th>统一 ID</th><th>类型</th><th>Native ID</th><th>传输</th><th>显示名</th><th></th></tr></thead>
-        <tbody id="nodes_body"></tbody>
-      </table>
+  </header>
+
+  <!-- ========== 仪表盘 ========== -->
+  <div class="page active" id="page-dash">
+    <div class="dashboard-grid" id="gauge-container">
+      <div class="gauge-card">
+        <div class="gauge-label">温度</div>
+        <div class="gauge-value normal" id="gauge-temp">--</div>
+        <div class="gauge-unit">°C</div>
+      </div>
+      <div class="gauge-card">
+        <div class="gauge-label">湿度</div>
+        <div class="gauge-value normal" id="gauge-hum">--</div>
+        <div class="gauge-unit">%</div>
+      </div>
+      <div class="gauge-card">
+        <div class="gauge-label">光照</div>
+        <div class="gauge-value normal" id="gauge-light">--</div>
+        <div class="gauge-unit">lux</div>
+      </div>
+      <div class="gauge-card">
+        <div class="gauge-label">信号强度</div>
+        <div class="gauge-value normal" id="gauge-rssi">--</div>
+        <div class="gauge-unit">dBm</div>
+      </div>
+    </div>
+
+    <div class="card">
+      <h2>设备状态</h2>
+      <div class="status-row">
+        <div class="status-chip">
+          <span class="status-dot off" id="led-dot"></span>
+          <div><div style="font-size:0.72rem;color:var(--muted)">LED 灯</div><div id="led-status-text">未知</div></div>
+        </div>
+        <div class="status-chip">
+          <span class="status-dot off" id="buzzer-dot"></span>
+          <div><div style="font-size:0.72rem;color:var(--muted)">蜂鸣器</div><div id="buzzer-status-text">未知</div></div>
+        </div>
+        <div class="status-chip">
+          <span class="status-dot off" id="alarm-dot"></span>
+          <div><div style="font-size:0.72rem;color:var(--muted)">报警</div><div id="alarm-status-text">未知</div></div>
+        </div>
+        <div class="status-chip">
+          <span class="status-dot off" id="conn-dot"></span>
+          <div><div style="font-size:0.72rem;color:var(--muted)">在线设备</div><div id="online-count">0</div></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <h2>最近上报数据</h2>
+      <p class="msg" id="last-telemetry">等待设备数据...</p>
+    </div>
+
+    <p class="msg" style="margin-top:1rem;">
+      <span class="badge ok">智能家居边缘网关</span>
+      仪表盘通过 MQTT WebSocket 实时接收传感器数据，无需手动刷新
+    </p>
+  </div>
+
+  <!-- ========== 节点管理 ========== -->
+  <div class="page" id="page-nodes">
+    <div class="card">
+      <h2>节点列表（在线 = 最近有上行经网关；含自动发现未登记设备）</h2>
+      <p class="msg" id="nmsg"></p>
+      <div class="row">
+        <input id="n_uid" placeholder="统一 ID（唯一）" />
+        <input id="n_type" placeholder="device_type（wifi/ble）" />
+        <input id="n_native" placeholder="native_device_id" />
+        <input id="n_name" placeholder="显示名（可选）" />
+        <select id="n_tr">
+          <option value="wifi">wifi</option>
+          <option value="ble">ble</option>
+          <option value="zigbee">zigbee（预留）</option>
+          <option value="lorawan">lorawan（预留）</option>
+        </select>
+        <button class="btn primary" id="n_add">添加节点</button>
+      </div>
+      <div style="overflow-x:auto;">
+        <table>
+          <thead><tr><th>在线</th><th>最后上报</th><th>来源</th><th>台账ID</th><th>统一 ID</th><th>类型</th><th>Native ID</th><th>传输</th><th>显示名</th><th>操作</th></tr></thead>
+          <tbody id="nodes_body"></tbody>
+        </table>
+      </div>
     </div>
   </div>
 
-  <div class="card hidden" id="users_card">
-    <h2>用户管理（仅管理员）</h2>
-    <p class="msg" id="umsg"></p>
-    <div class="row">
-      <input id="u_name" placeholder="新用户名" />
-      <input id="u_pass" type="password" placeholder="密码" />
-      <select id="u_role"><option value="user">user</option><option value="admin">admin</option></select>
-      <button type="button" class="primary" id="u_add">添加用户</button>
+  <!-- ========== 用户管理 ========== -->
+  <div class="page" id="page-users">
+    <div class="card hidden" id="users_card">
+      <h2>用户管理（仅管理员）</h2>
+      <p class="msg" id="umsg"></p>
+      <div class="row">
+        <input id="u_name" placeholder="新用户名" />
+        <input id="u_pass" type="password" placeholder="密码" />
+        <select id="u_role"><option value="user">user</option><option value="admin">admin</option></select>
+        <button class="btn primary" id="u_add">添加用户</button>
+      </div>
+      <div style="overflow-x:auto;">
+        <table>
+          <thead><tr><th>ID</th><th>用户名</th><th>角色</th><th>操作</th></tr></thead>
+          <tbody id="users_body"></tbody>
+        </table>
+      </div>
     </div>
-    <div style="overflow-x:auto;">
-      <table>
-        <thead><tr><th>ID</th><th>用户名</th><th>角色</th><th></th></tr></thead>
-        <tbody id="users_body"></tbody>
-      </table>
+  </div>
+
+  <!-- ========== 设备控制 ========== -->
+  <div class="page" id="page-control">
+    <div class="card">
+      <h2>设备控制面板</h2>
+      <p class="msg">选择目标设备后，通过 MQTT 下发控制指令</p>
+      <div class="control-group" style="margin-top:1rem;">
+        <div class="control-box">
+          <h3>LED 灯控制 (Wi-Fi 节点)</h3>
+          <select class="dev-select" id="ctrl-wifi-dev" style="width:100%;">
+            <option value="">-- 选择 Wi-Fi 设备 --</option>
+          </select>
+          <div class="color-btns">
+            <button class="color-btn" data-color="red" title="红色"></button>
+            <button class="color-btn" data-color="green" title="绿色"></button>
+            <button class="color-btn" data-color="blue" title="蓝色"></button>
+            <button class="color-btn" data-color="yellow" title="黄色"></button>
+            <button class="color-btn" data-color="white" title="白色"></button>
+            <button class="color-btn" data-color="off" title="关闭"></button>
+          </div>
+          <button class="btn warn small" id="ctrl-led-auto" style="margin-top:0.5rem;">释放远程接管 (auto)</button>
+        </div>
+        <div class="control-box">
+          <h3>蜂鸣器控制 (BLE 节点)</h3>
+          <select class="dev-select" id="ctrl-ble-dev" style="width:100%;">
+            <option value="">-- 选择 BLE 设备 --</option>
+          </select>
+          <div style="display:flex;gap:0.5rem;margin-bottom:0.75rem;">
+            <button class="btn primary" id="ctrl-buzzer-1">鸣响 1 次</button>
+            <button class="btn primary" id="ctrl-buzzer-3">鸣响 3 次</button>
+            <button class="btn danger" id="ctrl-buzzer-stop">停止</button>
+          </div>
+        </div>
+      </div>
+      <div id="ctrl-msg" class="msg" style="margin-top:0.75rem;"></div>
     </div>
+    <p class="msg">
+      <span class="badge warn">提示</span>
+      控制指令通过 MQTT 发布到 smarthome/v1/command/&lt;type&gt;/&lt;id&gt;，由网关转发至终端设备
+    </p>
   </div>
 
   <script>
-    const api = (path, opt) => fetch(path, { credentials: "same-origin", ...opt });
+    // ================================================================== //
+    // 全局状态
+    // ================================================================== //
+    let currentUser = null;
+    let nodesCache = [];
+    let mqttClient = null;
+    let mqttConnected = false;
 
-    async function requireSession() {
-      const r = await api("/api/v1/admin/session");
-      const d = await r.json();
-      if (!d.authenticated) {
-        window.location.href = "/admin/";
-        return null;
-      }
-      return d.user;
-    }
-
+    // ================================================================== //
+    // 工具函数
+    // ================================================================== //
+    function api(path, opt) { return fetch(path, { credentials: "same-origin", ...opt }); }
     function setMsg(el, text, good) {
       el.textContent = text || "";
       el.className = "msg" + (good ? " good" : text ? " bad" : "");
     }
-
     function fmtTime(ts) {
       if (ts == null || ts === "") return "—";
       const d = new Date(ts * 1000);
       if (isNaN(d.getTime())) return "—";
       return d.toLocaleString();
     }
+    function escapeHtml(s) {
+      const d = document.createElement("div");
+      d.textContent = s != null ? String(s) : "";
+      return d.innerHTML;
+    }
 
+    // ================================================================== //
+    // 会话检查
+    // ================================================================== //
+    async function requireSession() {
+      const r = await api("/api/v1/admin/session");
+      const d = await r.json();
+      if (!d.authenticated) { window.location.href = "/admin/"; return null; }
+      return d.user;
+    }
+
+    // ================================================================== //
+    // MQTT WebSocket 连接
+    // ================================================================== //
+    function connectMqtt() {
+      const wsHost = location.hostname || "127.0.0.1";
+      const wsUrl = "ws://" + wsHost + ":8083/mqtt";
+      const statusEl = document.getElementById("mqtt-status");
+      const dotEl = statusEl.querySelector(".status-dot");
+
+      try {
+        mqttClient = mqtt.connect(wsUrl, {
+          clientId: "web_dash_" + Math.random().toString(16).substr(2, 8),
+          clean: true,
+          connectTimeout: 5000,
+          reconnectPeriod: 5000,
+        });
+      } catch (e) {
+        console.warn("MQTT connect error:", e);
+        return;
+      }
+
+      mqttClient.on("connect", () => {
+        mqttConnected = true;
+        dotEl.className = "status-dot on";
+        statusEl.innerHTML = '<span class="status-dot on"></span> MQTT 已连接';
+        mqttClient.subscribe("smarthome/v1/telemetry/+/+", { qos: 1 });
+        mqttClient.subscribe("smarthome/v1/status/+/+", { qos: 1 });
+        document.getElementById("last-telemetry").textContent = "已连接，等待设备数据...";
+      });
+
+      mqttClient.on("reconnect", () => {
+        dotEl.className = "status-dot off";
+        statusEl.innerHTML = '<span class="status-dot off"></span> MQTT 重连中...';
+        mqttConnected = false;
+      });
+
+      mqttClient.on("close", () => {
+        mqttConnected = false;
+        dotEl.className = "status-dot off";
+        statusEl.innerHTML = '<span class="status-dot off"></span> MQTT 已断开';
+      });
+
+      mqttClient.on("error", (err) => {
+        console.warn("MQTT error:", err);
+        mqttConnected = false;
+      });
+
+      mqttClient.on("message", (topic, message) => {
+        try {
+          const data = JSON.parse(message.toString());
+          handleTelemetry(topic, data);
+        } catch (e) {
+          console.warn("MQTT parse error:", e);
+        }
+      });
+    }
+
+    function handleTelemetry(topic, data) {
+      const devType = data.device_type || "unknown";
+      const devId = data.device_id || "unknown";
+      const p = data.payload || {};
+      const ts = data.timestamp ? fmtTime(data.timestamp) : "刚刚";
+
+      document.getElementById("last-telemetry").textContent =
+        "[" + ts + "] " + devType + "/" + devId + " — " + JSON.stringify(p).substring(0, 200);
+
+      if (typeof p.temperature === "number") updateGauge("temp", p.temperature, -10, 50, "°C");
+      if (typeof p.humidity === "number") updateGauge("hum", p.humidity, 0, 100, "%");
+      const lightVal = (typeof p.light === "number") ? p.light : ((typeof p.l === "number") ? p.l : ((typeof p.illuminance === "number") ? p.illuminance : undefined));
+      if (typeof lightVal === "number") updateGauge("light", lightVal, 0, 1000, "lux");
+      if (typeof p.rssi === "number") updateGauge("rssi", p.rssi, -100, -20, "dBm");
+
+      if (typeof p.led === "string") updateLedStatus(p.led);
+      if (typeof p.buzzer !== "undefined" || typeof p.beep !== "undefined") {
+        const bv = (typeof p.buzzer === "number") ? p.buzzer : (typeof p.beep === "number") ? p.beep : 0;
+        updateBuzzerStatus(bv > 0);
+      }
+      if (typeof p.alarm !== "undefined") updateAlarmStatus(p.alarm);
+    }
+
+    function updateGauge(id, value, min, max, unit) {
+      const el = document.getElementById("gauge-" + id);
+      if (!el) return;
+      el.textContent = (typeof value === "number") ? value.toFixed(1) : value;
+      el.className = "gauge-value";
+      if (id === "rssi") {
+        if (value > -55) el.className += " normal";
+        else if (value > -75) el.className += " warning";
+        else el.className += " danger";
+      } else if (id === "temp") {
+        if (value < 25) el.className += " normal";
+        else if (value < 32) el.className += " warning";
+        else el.className += " danger";
+      } else if (id === "hum") {
+        if (value >= 30 && value <= 70) el.className += " normal";
+        else if (value >= 20 && value <= 85) el.className += " warning";
+        else el.className += " danger";
+      } else if (id === "light") {
+        if (value >= 200) el.className += " normal";
+        else if (value >= 50) el.className += " warning";
+        else el.className += " danger";
+      }
+    }
+
+    function updateLedStatus(color) {
+      const dot = document.getElementById("led-dot");
+      const text = document.getElementById("led-status-text");
+      dot.className = "status-dot " + (color && color !== "off" ? "on" : "off");
+      if (color === "off" || !color) { dot.className = "status-dot off"; }
+      else if (color === "red") dot.style.background = "#f85149";
+      else if (color === "green") dot.style.background = "#3fb950";
+      else if (color === "blue") dot.style.background = "#58a6ff";
+      else if (color === "yellow") dot.style.background = "#d29922";
+      else if (color === "white") dot.style.background = "#e6edf3";
+      else if (color === "magenta") dot.style.background = "#d580ff";
+      else if (color === "cyan") dot.style.background = "#00c9c9";
+      dot.style.boxShadow = (color && color !== "off") ? "0 0 8px " + dot.style.background : "";
+      text.textContent = color ? color.toUpperCase() : "未知";
+    }
+
+    function updateBuzzerStatus(active) {
+      const dot = document.getElementById("buzzer-dot");
+      const text = document.getElementById("buzzer-status-text");
+      dot.className = "status-dot " + (active ? "active" : "off");
+      text.textContent = active ? "鸣响中" : "静默";
+    }
+
+    function updateAlarmStatus(active) {
+      const dot = document.getElementById("alarm-dot");
+      const text = document.getElementById("alarm-status-text");
+      dot.className = "status-dot " + (active ? "active" : "off");
+      text.textContent = active ? "报警中" : "正常";
+    }
+
+    // ================================================================== //
+    // 节点加载与删除
+    // ================================================================== //
     async function loadNodes() {
       const r = await api("/api/v1/admin/nodes");
       const d = await r.json();
       const tb = document.getElementById("nodes_body");
       tb.innerHTML = "";
       if (!d.ok) { setMsg(document.getElementById("nmsg"), d.error || "加载失败"); return; }
+      nodesCache = d.nodes || [];
       const hint = d.online_grace_sec != null ? "（在线阈值 " + d.online_grace_sec + "s 内有上行）" : "";
       setMsg(document.getElementById("nmsg"), "每 3 秒自动刷新" + hint, true);
-      for (const n of d.nodes) {
-        const online = n.online ? "是" : "否";
-        const src = n.source === "registry" ? "台账" : "发现";
+
+      let onlineCount = 0;
+      for (const n of nodesCache) {
+        if (n.online) onlineCount++;
+        const online = n.online ? '<span class="badge ok">在线</span>' : '<span class="badge err">离线</span>';
+        const src = n.source === "registry" ? "台账" : '<span class="badge warn">发现</span>';
         const rid = n.registry_id != null ? String(n.registry_id) : "—";
-        const delBtn = n.registry_id != null
-          ? "<button class='danger' data-del='" + n.registry_id + "'>删除台账</button>"
-          : "";
         const tr = document.createElement("tr");
-        tr.innerHTML = "<td>" + online + "</td><td>" + fmtTime(n.last_seen) + "</td><td>" + src + "</td><td>" + rid + "</td><td>" + escapeHtml(n.unified_id) + "</td><td>" + escapeHtml(n.device_type) + "</td><td>" + escapeHtml(n.native_device_id) + "</td><td>" + escapeHtml(n.transport) + "</td><td>" + escapeHtml(n.display_name || "") + "</td><td>" + delBtn + "</td>";
+        let delHtml = "";
+        if (n.registry_id != null) {
+          delHtml = "<button class='btn danger small' data-del-reg='" + n.registry_id + "'>删除</button>";
+        } else {
+          delHtml = "<button class='btn danger small' data-del-pres data-dt='" + escapeHtml(n.device_type) + "' data-did='" + escapeHtml(n.native_device_id) + "'>清除记录</button>";
+        }
+        tr.innerHTML = "<td>" + online + "</td><td>" + fmtTime(n.last_seen) + "</td><td>" + src + "</td><td>" + rid + "</td><td>" + escapeHtml(n.unified_id) + "</td><td>" + escapeHtml(n.device_type) + "</td><td>" + escapeHtml(n.native_device_id) + "</td><td>" + escapeHtml(n.transport) + "</td><td>" + escapeHtml(n.display_name || "") + "</td><td style='white-space:nowrap'>" + delHtml + "</td>";
         tb.appendChild(tr);
       }
-      tb.querySelectorAll("[data-del]").forEach((b) => b.addEventListener("click", async () => {
-        if (!confirm("确定从台账删除？（不影响设备继续上报；仅删除登记行）")) return;
-        const id = b.getAttribute("data-del");
+
+      document.getElementById("online-count").textContent = onlineCount;
+      const connDot = document.getElementById("conn-dot");
+      connDot.className = "status-dot " + (onlineCount > 0 ? "on" : "off");
+
+      tb.querySelectorAll("[data-del-reg]").forEach((b) => b.addEventListener("click", async () => {
+        if (!confirm("确定从台账中删除此节点？（将同时清除在线状态记录）")) return;
+        const id = b.getAttribute("data-del-reg");
         const r2 = await api("/api/v1/admin/nodes/" + id, { method: "DELETE" });
         const d2 = await r2.json();
         if (d2.ok) loadNodes(); else alert(d2.error || "删除失败");
       }));
+
+      tb.querySelectorAll("[data-del-pres]").forEach((b) => b.addEventListener("click", async () => {
+        if (!confirm("确定清除此发现节点的在线记录？（设备再次上报后将重新出现）")) return;
+        const dt = b.getAttribute("data-dt");
+        const did = b.getAttribute("data-did");
+        const r2 = await api("/api/v1/admin/nodes/presence", {
+          method: "DELETE",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ device_type: dt, device_id: did })
+        });
+        const d2 = await r2.json();
+        if (d2.ok) loadNodes(); else alert(d2.error || "清除失败");
+      }));
+
+      refreshControlDevices();
     }
 
+    // ================================================================== //
+    // 设备控制
+    // ================================================================== //
+    function refreshControlDevices() {
+      const wifiSel = document.getElementById("ctrl-wifi-dev");
+      const bleSel = document.getElementById("ctrl-ble-dev");
+      const curWifi = wifiSel.value;
+      const curBle = bleSel.value;
+      wifiSel.innerHTML = '<option value="">-- 选择 Wi-Fi 设备 --</option>';
+      bleSel.innerHTML = '<option value="">-- 选择 BLE 设备 --</option>';
+      for (const n of nodesCache) {
+        const opt = document.createElement("option");
+        opt.value = n.native_device_id;
+        opt.textContent = (n.display_name || n.unified_id || n.native_device_id) + " (" + (n.online ? "在线" : "离线") + ")";
+        opt.dataset.online = n.online ? "1" : "0";
+        if (n.device_type === "wifi" || n.transport === "wifi") {
+          wifiSel.appendChild(opt.cloneNode(true));
+        } else if (n.device_type === "ble" || n.transport === "ble") {
+          bleSel.appendChild(opt.cloneNode(true));
+        }
+      }
+      if (curWifi) wifiSel.value = curWifi;
+      if (curBle) bleSel.value = curBle;
+    }
+
+    async function sendControl(deviceType, deviceId, command) {
+      const msgEl = document.getElementById("ctrl-msg");
+      setMsg(msgEl, "发送中...", true);
+      try {
+        const r = await api("/api/v1/admin/device/control", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ device_type: deviceType, device_id: deviceId, command: command })
+        });
+        const d = await r.json();
+        if (d.ok) {
+          setMsg(msgEl, "指令已发送: " + JSON.stringify(command), true);
+        } else {
+          setMsg(msgEl, d.error || "发送失败");
+        }
+      } catch (e) {
+        setMsg(msgEl, "网络错误");
+      }
+    }
+
+    document.querySelectorAll(".color-btn").forEach((btn) => {
+      btn.addEventListener("click", () => {
+        const dev = document.getElementById("ctrl-wifi-dev").value;
+        if (!dev) { setMsg(document.getElementById("ctrl-msg"), "请先选择 Wi-Fi 设备"); return; }
+        sendControl("wifi", dev, { led: btn.dataset.color });
+      });
+    });
+
+    document.getElementById("ctrl-led-auto").addEventListener("click", () => {
+      const dev = document.getElementById("ctrl-wifi-dev").value;
+      if (!dev) { setMsg(document.getElementById("ctrl-msg"), "请先选择 Wi-Fi 设备"); return; }
+      sendControl("wifi", dev, { auto: true });
+    });
+
+    document.getElementById("ctrl-buzzer-1").addEventListener("click", () => {
+      const dev = document.getElementById("ctrl-ble-dev").value;
+      if (!dev) { setMsg(document.getElementById("ctrl-msg"), "请先选择 BLE 设备"); return; }
+      sendControl("ble", dev, { beep: 1 });
+    });
+
+    document.getElementById("ctrl-buzzer-3").addEventListener("click", () => {
+      const dev = document.getElementById("ctrl-ble-dev").value;
+      if (!dev) { setMsg(document.getElementById("ctrl-msg"), "请先选择 BLE 设备"); return; }
+      sendControl("ble", dev, { beep: 3 });
+    });
+
+    document.getElementById("ctrl-buzzer-stop").addEventListener("click", () => {
+      const dev = document.getElementById("ctrl-ble-dev").value;
+      if (!dev) { setMsg(document.getElementById("ctrl-msg"), "请先选择 BLE 设备"); return; }
+      sendControl("ble", dev, { beep: 0 });
+    });
+
+    // ================================================================== //
+    // 用户管理
+    // ================================================================== //
     async function loadUsers() {
       const r = await api("/api/v1/admin/users");
       const d = await r.json();
@@ -139,7 +569,7 @@
       tb.innerHTML = "";
       for (const u of d.users) {
         const tr = document.createElement("tr");
-        tr.innerHTML = "<td>" + u.id + "</td><td>" + escapeHtml(u.username) + "</td><td>" + escapeHtml(u.role) + "</td><td><button class='danger' data-udel='" + u.id + "'>删除</button></td>";
+        tr.innerHTML = "<td>" + u.id + "</td><td>" + escapeHtml(u.username) + "</td><td>" + escapeHtml(u.role) + "</td><td><button class='btn danger small' data-udel='" + u.id + "'>删除</button></td>";
         tb.appendChild(tr);
       }
       tb.querySelectorAll("[data-udel]").forEach((b) => b.addEventListener("click", async () => {
@@ -151,50 +581,73 @@
       }));
     }
 
-    function escapeHtml(s) {
-      const d = document.createElement("div");
-      d.textContent = s;
-      return d.innerHTML;
+    // ================================================================== //
+    // 页面导航
+    // ================================================================== //
+    function switchPage(id) {
+      document.querySelectorAll(".page").forEach((p) => p.classList.remove("active"));
+      document.getElementById("page-" + id).classList.add("active");
+      document.querySelectorAll(".nav button").forEach((b) => {
+        b.classList.remove("active");
+        if (b.id === "nav-" + id) b.classList.add("active");
+      });
+      if (id === "nodes") loadNodes();
+      if (id === "users") loadUsers();
     }
 
-    document.getElementById("logout").addEventListener("click", async () => {
-      await api("/api/v1/admin/logout", { method: "POST" });
-      window.location.href = "/admin/";
-    });
-
-    document.getElementById("n_add").addEventListener("click", async () => {
-      const body = {
-        unified_id: document.getElementById("n_uid").value.trim(),
-        device_type: document.getElementById("n_type").value.trim(),
-        native_device_id: document.getElementById("n_native").value.trim(),
-        display_name: document.getElementById("n_name").value.trim(),
-        transport: document.getElementById("n_tr").value,
-      };
-      const r = await api("/api/v1/admin/nodes", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(body) });
-      const d = await r.json();
-      if (d.ok) { setMsg(document.getElementById("nmsg"), "已添加", true); loadNodes(); }
-      else setMsg(document.getElementById("nmsg"), d.error || "添加失败");
-    });
-
-    document.getElementById("u_add").addEventListener("click", async () => {
-      const body = {
-        username: document.getElementById("u_name").value.trim(),
-        password: document.getElementById("u_pass").value,
-        role: document.getElementById("u_role").value,
-      };
-      const r = await api("/api/v1/admin/users", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(body) });
-      const d = await r.json();
-      if (d.ok) { setMsg(document.getElementById("umsg"), "已添加", true); loadUsers(); }
-      else setMsg(document.getElementById("umsg"), d.error || "添加失败");
-    });
-
+    // ================================================================== //
+    // 初始化
+    // ================================================================== //
     (async () => {
       const user = await requireSession();
       if (!user) return;
+      currentUser = user;
       document.getElementById("who").textContent = "已登录：" + user.username + "（" + user.role + "）";
+      if (user.role !== "admin") {
+        document.getElementById("nav-users").classList.add("hidden");
+      }
+
+      connectMqtt();
       await loadNodes();
-      await loadUsers();
-      setInterval(loadNodes, 3000);
+
+      setInterval(loadNodes, 5000);
+
+      document.getElementById("nav-dash").addEventListener("click", () => switchPage("dash"));
+      document.getElementById("nav-nodes").addEventListener("click", () => switchPage("nodes"));
+      document.getElementById("nav-users").addEventListener("click", () => switchPage("users"));
+      document.getElementById("nav-control").addEventListener("click", () => switchPage("control"));
+
+      document.getElementById("logout").addEventListener("click", async () => {
+        if (mqttClient) { try { mqttClient.end(); } catch (e) {} }
+        await api("/api/v1/admin/logout", { method: "POST" });
+        window.location.href = "/admin/";
+      });
+
+      document.getElementById("n_add").addEventListener("click", async () => {
+        const body = {
+          unified_id: document.getElementById("n_uid").value.trim(),
+          device_type: document.getElementById("n_type").value.trim(),
+          native_device_id: document.getElementById("n_native").value.trim(),
+          display_name: document.getElementById("n_name").value.trim(),
+          transport: document.getElementById("n_tr").value,
+        };
+        const r = await api("/api/v1/admin/nodes", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(body) });
+        const d = await r.json();
+        if (d.ok) { setMsg(document.getElementById("nmsg"), "已添加", true); loadNodes(); }
+        else setMsg(document.getElementById("nmsg"), d.error || "添加失败");
+      });
+
+      document.getElementById("u_add").addEventListener("click", async () => {
+        const body = {
+          username: document.getElementById("u_name").value.trim(),
+          password: document.getElementById("u_pass").value,
+          role: document.getElementById("u_role").value,
+        };
+        const r = await api("/api/v1/admin/users", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(body) });
+        const d = await r.json();
+        if (d.ok) { setMsg(document.getElementById("umsg"), "已添加", true); loadUsers(); }
+        else setMsg(document.getElementById("umsg"), d.error || "添加失败");
+      });
     })();
   </script>
 </body>

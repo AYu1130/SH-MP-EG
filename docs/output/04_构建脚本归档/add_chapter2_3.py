@@ -1,0 +1,182 @@
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
+"""
+添加第2-3章内容
+"""
+
+from docx import Document
+from docx.shared import Pt, Cm
+from docx.enum.text import WD_PARAGRAPH_ALIGNMENT
+from docx.oxml.ns import qn
+
+def add_heading_custom(doc, text, level=1):
+    """添加自定义标题"""
+    heading = doc.add_heading(level=level)
+    run = heading.add_run(text)
+    run.font.name = '黑体'
+    run._element.rPr.rFonts.set(qn('w:eastAsia'), '黑体')
+    
+    if level == 1:
+        run.font.size = Pt(16)
+        run.font.bold = True
+        heading.alignment = WD_PARAGRAPH_ALIGNMENT.CENTER
+        heading.paragraph_format.space_before = Pt(24)
+        heading.paragraph_format.space_after = Pt(18)
+    elif level == 2:
+        run.font.size = Pt(14)
+        run.font.bold = True
+        heading.paragraph_format.space_before = Pt(18)
+        heading.paragraph_format.space_after = Pt(12)
+    else:
+        run.font.size = Pt(12)
+        run.font.bold = True
+        heading.paragraph_format.space_before = Pt(12)
+        heading.paragraph_format.space_after = Pt(6)
+    
+    heading.paragraph_format.line_spacing = 1.5
+    return heading
+
+def add_paragraph_custom(doc, text, first_line_indent=True):
+    """添加自定义段落"""
+    p = doc.add_paragraph()
+    run = p.add_run(text)
+    run.font.name = '宋体'
+    run._element.rPr.rFonts.set(qn('w:eastAsia'), '宋体')
+    run.font.size = Pt(12)
+    
+    p.paragraph_format.line_spacing = 1.5
+    if first_line_indent:
+        p.paragraph_format.first_line_indent = Cm(0.74)
+    p.paragraph_format.space_after = Pt(6)
+    
+    return p
+
+def add_table_from_data(doc, headers, rows):
+    """添加表格"""
+    table = doc.add_table(rows=1, cols=len(headers))
+    table.style = 'Table Grid'
+    
+    # 表头
+    hdr_cells = table.rows[0].cells
+    for i, header in enumerate(headers):
+        hdr_cells[i].text = header
+        for p in hdr_cells[i].paragraphs:
+            for run in p.runs:
+                run.font.name = '宋体'
+                run._element.rPr.rFonts.set(qn('w:eastAsia'), '宋体')
+                run.font.size = Pt(10)
+                run.font.bold = True
+            p.alignment = WD_PARAGRAPH_ALIGNMENT.CENTER
+    
+    # 数据行
+    for row_data in rows:
+        row_cells = table.add_row().cells
+        for i, cell_data in enumerate(row_data):
+            row_cells[i].text = str(cell_data)
+            for p in row_cells[i].paragraphs:
+                for run in p.runs:
+                    run.font.name = '宋体'
+                    run._element.rPr.rFonts.set(qn('w:eastAsia'), '宋体')
+                    run.font.size = Pt(10)
+                p.alignment = WD_PARAGRAPH_ALIGNMENT.CENTER
+    
+    doc.add_paragraph()
+    return table
+
+def main():
+    # 打开现有文档
+    doc = Document('e:\\100_study\\120_Project\\CapstoneProject\\SmartHome_MultiProtocol_EdgeIntelligent_Gateway\\SH-MP-EG\\docs\\output\\面向智能家居的多协议边缘智能网关设计_论文_v2.docx')
+    
+    # ========== 第2章 ==========
+    doc.add_page_break()
+    add_heading_custom(doc, '第2章 智能家居无线通信协议与关键技术分析', level=1)
+    
+    # 2.1
+    add_heading_custom(doc, '2.1 智能家居主流无线通信协议比较分析', level=2)
+    
+    texts_21 = [
+        '智能家居领域的无线通信技术呈现出多元化发展的态势，不同协议在传输速率、功耗特性、网络拓扑、安全性及成本方面各具特色。当前主流的无线通信协议主要包括Wi-Fi、蓝牙低功耗（BLE）、Zigbee、Z-Wave、Thread以及LoRaWAN等，这些协议分别适用于不同的应用场景和设备类型。',
+        'Wi-Fi协议以其高传输速率和广泛的设备兼容性成为智能家居中多媒体设备的首选通信方式。基于IEEE 802.11系列标准，Wi-Fi在2.4GHz和5GHz频段提供高达数百Mbps的数据传输能力，能够满足视频监控、高清音频流等高带宽应用需求。然而，较高的功耗特性限制了其在电池供电传感器中的应用范围，且网络节点容量相对有限，大规模部署时易受信道拥塞影响。',
+        '蓝牙低功耗（BLE）协议是经典蓝牙的演进版本，专注于低功耗、短距离的数据传输需求。BLE采用跳频扩频技术，在2.4GHz频段通过40个信道实现抗干扰通信，其待机功耗可低至微安级别，非常适合温湿度传感器、门窗磁感应器等电池供电设备。BLE 5.0版本进一步提升了传输速率和通信距离，同时引入了Mesh组网能力，扩展了其在智能家居中的应用场景。',
+        'Zigbee协议基于IEEE 802.15.4标准，专为低功耗、低速率的传感器网络设计。Zigbee支持星型、树型和网状网络拓扑，单个网络可容纳多达65000个节点，具有极强的网络扩展能力。其自组网、自愈合特性使得网络中的设备能够自动寻找最佳通信路径，提高了系统的可靠性。Zigbee在智能家居照明控制、安防传感器网络中得到了广泛应用。',
+        'Z-Wave是一种专为家庭自动化设计的无线通信协议，工作在Sub-1GHz频段（国内通常为868.4MHz），相比2.4GHz频段协议具有更好的穿墙能力和更低的干扰概率。Z-Wave采用网状网络拓扑，单网络支持最多232个节点，虽然节点容量小于Zigbee，但对于一般家庭环境已足够使用。',
+        'LoRaWAN属于远距离低功耗广域网技术，采用扩频调制技术实现超远距离通信，在城市环境中传输距离可达2-5公里。虽然其传输速率较低（0.3-50kbps），但极低的功耗和超长的传输距离使其适用于庭院、农田等大面积区域的传感器部署。'
+    ]
+    
+    for text in texts_21:
+        add_paragraph_custom(doc, text)
+    
+    # 表2-1
+    p = doc.add_paragraph()
+    run = p.add_run('表2-1 智能家居主流无线通信协议对比')
+    run.font.name = '黑体'
+    run._element.rPr.rFonts.set(qn('w:eastAsia'), '黑体')
+    run.font.size = Pt(10.5)
+    run.font.bold = True
+    p.alignment = WD_PARAGRAPH_ALIGNMENT.CENTER
+    
+    headers = ['对比维度', 'Wi-Fi', 'BLE', 'Zigbee', 'Z-Wave', 'LoRaWAN']
+    rows = [
+        ['传输速率', '11-600Mbps', '1-2Mbps', '20-250kbps', '9.6-100kbps', '0.3-50kbps'],
+        ['功耗水平', '高（百mA级）', '极低（uA级）', '低（mA级）', '低（mA级）', '极低（uA级）'],
+        ['典型传输距离', '50-100m', '10-100m', '10-100m', '30-100m', '2-15km'],
+        ['网络拓扑', '星型', '星型/Mesh', '星型/树型/Mesh', '网状', '星型'],
+        ['最大节点数', '受路由器限制', '无明确限制', '65000', '232', '约20万'],
+        ['工作频段', '2.4GHz/5GHz', '2.4GHz', '2.4GHz', 'Sub-1GHz', 'Sub-1GHz'],
+        ['安全性', 'WPA3加密', 'AES-128加密', 'AES-128加密', 'AES-128加密', 'AES-128加密'],
+        ['典型应用场景', '摄像头、音箱', '传感器、门锁', '照明、温控', '安防、照明', '远程传感器'],
+        ['成本', '中', '低', '低', '中', '中'],
+    ]
+    add_table_from_data(doc, headers, rows)
+    
+    add_paragraph_custom(doc, '通过对比分析可以看出，不同协议在性能指标上存在显著差异。Wi-Fi以高带宽见长但功耗较高，适合需要传输大量数据的设备；BLE以超低功耗著称，适合电池供电的小型传感器；Zigbee在网络容量和自组网能力方面优势明显，适合大规模传感器网络；Z-Wave凭借Sub-1GHz频段在穿墙能力和抗干扰性方面表现突出；LoRaWAN则以超长传输距离覆盖大面积区域。')
+    
+    add_paragraph_custom(doc, '从智能家居系统集成的角度审视，单一协议难以满足所有设备的通信需求。高带宽的安防摄像头需要Wi-Fi支持，分布广泛的门窗传感器适合Zigbee或BLE连接，户外环境监测设备可能需要LoRaWAN覆盖。这种多协议并存的局面决定了多协议网关的必要性——只有通过协议转换层将异构网络统一接入，才能实现真正意义上的全屋智能统一管控。')
+    
+    # 2.2
+    add_heading_custom(doc, '2.2 本系统支持协议与技术选型依据', level=2)
+    
+    add_heading_custom(doc, 'Wi-Fi协议选型依据', level=3)
+    add_paragraph_custom(doc, 'Wi-Fi作为高带宽设备接入协议，主要服务于需要传输视频流、音频流或大批量数据的智能终端。在本系统中，ESP32-S3模块通过Wi-Fi与网关进行通信，承担温湿度、光照等环境数据的采集与上报任务。选择Wi-Fi的原因在于：其一，Wi-Fi在家庭环境中普及率极高，无需额外部署专用网关；其二，ESP32系列芯片集成了高性能Wi-Fi射频前端，在保持较低成本的同时提供稳定的无线连接能力；其三，Wi-Fi的高速传输特性使得设备固件空中升级（OTA）成为可能，便于后期维护和功能扩展。')
+    
+    add_heading_custom(doc, 'BLE协议选型依据', level=3)
+    add_paragraph_custom(doc, 'BLE作为低功耗传感器接入协议，主要服务于电池供电或采用能量采集方式工作的终端节点。STM32F103配合BLE模块，实现蓝牙设备的扫描、连接与数据交互。选择BLE的原因在于：其一，BLE的超低功耗特性使其成为纽扣电池供电传感器的理想选择，单节CR2032电池可支持数年的持续工作；其二，BLE的快速连接特性（典型连接建立时间小于10毫秒）能够实现即时响应的场景需求；其三，BLE广播模式支持无连接的数据传输，简化了设备接入流程，用户无需繁琐的配对操作即可使用传感器设备。')
+    
+    add_heading_custom(doc, 'MQTT协议选型依据', level=3)
+    add_paragraph_custom(doc, 'MQTT作为应用层统一消息总线，承担协议转换后的数据汇聚与分发职能。MQTT是一种基于发布/订阅模式的轻量级消息传输协议，其设计初衷就是为低带宽、高延迟或不可靠网络环境下的物联网设备提供可靠的消息传输服务。选择MQTT的原因在于：其一，MQTT的发布/订阅模式实现了数据生产者与消费者的解耦，设备只需关注数据发布，无需关心具体接收方；其二，MQTT支持多级主题（Topic）层次结构，便于对海量设备进行逻辑分组和精细化管理；其三，MQTT提供三种服务质量（QoS）等级，可根据消息重要性灵活选择传输保障级别；其四，MQTT的遗嘱消息（Last Will）和保留消息（Retained Message）机制能够有效处理设备异常离线场景，提升系统鲁棒性。')
+    
+    # 2.3
+    add_heading_custom(doc, '2.3 多协议共存与边缘侧协同可行性分析', level=2)
+    
+    add_heading_custom(doc, '物理层共存可行性分析', level=3)
+    add_paragraph_custom(doc, '本系统涉及的Wi-Fi和BLE协议均工作在2.4GHz ISM频段，频段范围为2400-2483.5MHz。Wi-Fi在该频段划分14个信道（国内可用13个），每个信道带宽20MHz（或40MHz捆绑）；BLE划分40个信道，每个信道带宽2MHz。从频谱分配角度分析，两种协议的频谱资源存在重叠，理论上可能产生同频干扰。')
+    add_paragraph_custom(doc, '然而，现代无线通信技术通过多种机制有效缓解了同频干扰问题。Wi-Fi采用CSMA/CA（载波侦听多路访问/冲突避免）机制，在发送数据前检测信道状态，仅在信道空闲时启动传输；BLE采用自适应跳频技术，每次连接事件在37个数据信道间伪随机切换，有效分散干扰风险。更为关键的是，本系统采用时分复用的方式协调两种协议的通信时序：网关主控制器通过调度算法为Wi-Fi和BLE模块分配不同的工作时段，避免两者在同一时刻进行射频收发操作。')
+    
+    add_heading_custom(doc, '上层协同调度可行性分析', level=3)
+    add_paragraph_custom(doc, '在应用层面，MQTT消息中间件为多协议设备的数据抽象和主题映射提供了坚实的技术基础。无论设备通过Wi-Fi还是BLE接入网关，其上报的数据经过协议转换层处理后，均被封装为统一的JSON格式消息，并发布到规范化的MQTT主题上。')
+    add_paragraph_custom(doc, '本系统设计的主题命名遵循层次化原则，采用"home/区域/设备类型/设备ID/数据类型"的五级结构。例如，位于客厅的温度传感器上报数据发布的主题可能为"home/livingroom/temperature/sensor_01/data"，而针对该设备的控制指令则发布到"home/livingroom/temperature/sensor_01/control"主题。这种层次化的主题设计使得设备管理具有清晰的逻辑结构，便于实现基于通配符的批量订阅和权限控制。')
+    add_paragraph_custom(doc, '跨协议联动场景的实现依赖于MQTT的发布/订阅机制。以"光照自动控灯"场景为例：BLE光照传感器定期将环境亮度数据发布到指定主题；Node-RED规则引擎订阅该主题，当检测到亮度值低于设定阈值时，自动向Wi-Fi智能灯具的控制主题发布开启指令；灯具接收到指令后执行开灯动作。整个联动过程完全在本地网络中完成，无需云端参与，响应时延可控制在毫秒级别。')
+    
+    # ========== 第3章 ==========
+    doc.add_page_break()
+    add_heading_custom(doc, '第3章 多协议边缘网关总体方案与开发平台', level=1)
+    
+    # 3.1
+    add_heading_custom(doc, '3.1 网关总体方案设计', level=2)
+    
+    add_heading_custom(doc, '系统整体分层架构', level=3)
+    add_paragraph_custom(doc, '本系统采用分层架构设计思想，将多协议边缘网关划分为设备接入层、协议适配层、消息路由与处理层、应用与联动管理层四个功能层次。各层之间通过标准化接口进行交互，实现功能解耦和模块独立。')
+    add_paragraph_custom(doc, '设备接入层位于架构最底层，负责与各类智能家居终端设备进行物理连接和原始数据收发。该层包含Wi-Fi接入模块、BLE接入模块以及预留的其他协议扩展接口。Wi-Fi接入模块通过TCP/UDP Socket与ESP32-S3设备建立通信连接，接收传感器上报的环境数据；BLE接入模块通过蓝牙协议栈与STM32F103设备进行GATT特征值读写，获取传感器数据或下发控制指令。')
+    add_paragraph_custom(doc, '协议适配层承担异构协议数据的解析与转换职能。该层维护一组协议适配器（Protocol Adapter），每种支持的协议对应一个适配器实例。Wi-Fi适配器负责解析ESP32通过Socket发送的原始数据帧，提取有效载荷并进行格式校验；BLE适配器负责处理蓝牙GATT通信，将特征值数据转换为内部数据结构；MQTT适配器作为输出侧适配器，将内部数据结构序列化为JSON格式的MQTT消息。')
+    add_paragraph_custom(doc, '消息路由与处理层是网关的数据中枢，负责消息的接收、缓存、路由和转发。该层部署EMQX消息代理作为核心组件，处理MQTT消息的发布/订阅逻辑。同时，该层包含消息路由器（Message Router），根据预定义的规则将消息分发至不同的处理终端：本地联动引擎、Web管理后台或云端转发模块。消息队列机制确保高并发场景下的数据处理可靠性。')
+    add_paragraph_custom(doc, '应用与联动管理层面向终端用户和上层应用提供功能接口。Node-RED可视化编程环境作为本地联动引擎，允许用户通过拖拽方式配置自动化规则；Flask Web框架构建的管理后台提供设备管理、状态监控、系统配置等交互功能；云端桥接模块在需要时将数据转发至远程服务器，实现远程访问和大数据分析。')
+    
+    print("第2-3章内容添加完成")
+    
+    # 保存文档
+    output_path = 'e:\\100_study\\120_Project\\CapstoneProject\\SmartHome_MultiProtocol_EdgeIntelligent_Gateway\\SH-MP-EG\\docs\\output\\面向智能家居的多协议边缘智能网关设计_论文_v2.docx'
+    doc.save(output_path)
+    print(f'文档已保存至: {output_path}')
+
+if __name__ == '__main__':
+    main()

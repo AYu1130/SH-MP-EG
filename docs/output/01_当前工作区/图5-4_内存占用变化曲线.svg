@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" width="660" height="460" viewBox="0 0 660 460">
+  <rect x="0" y="0" width="660" height="460" fill="#FFFFFF" />
+  <text x="330" y="26" font-size="14" fill="#1a1a1a" font-family="宋体, SimSun, sans-serif" font-weight="bold" text-anchor="middle">图5.4  7×24小时内存占用变化曲线</text>
+  <line x1="72" y1="378.0" x2="620" y2="378.0" stroke="#E0E0E0" stroke-width="0.7" />
+  <text x="64" y="382.0" font-size="9" fill="#666666" font-family="宋体, SimSun, sans-serif" text-anchor="end">160</text>
+  <line x1="72" y1="323.0" x2="620" y2="323.0" stroke="#E0E0E0" stroke-width="0.7" />
+  <text x="64" y="327.0" font-size="9" fill="#666666" font-family="宋体, SimSun, sans-serif" text-anchor="end">165</text>
+  <line x1="72" y1="268.0" x2="620" y2="268.0" stroke="#E0E0E0" stroke-width="0.7" />
+  <text x="64" y="272.0" font-size="9" fill="#666666" font-family="宋体, SimSun, sans-serif" text-anchor="end">170</text>
+  <line x1="72" y1="213.0" x2="620" y2="213.0" stroke="#E0E0E0" stroke-width="0.7" />
+  <text x="64" y="217.0" font-size="9" fill="#666666" font-family="宋体, SimSun, sans-serif" text-anchor="end">175</text>
+  <line x1="72" y1="158.0" x2="620" y2="158.0" stroke="#E0E0E0" stroke-width="0.7" />
+  <text x="64" y="162.0" font-size="9" fill="#666666" font-family="宋体, SimSun, sans-serif" text-anchor="end">180</text>
+  <line x1="72" y1="103.0" x2="620" y2="103.0" stroke="#E0E0E0" stroke-width="0.7" />
+  <text x="64" y="107.0" font-size="9" fill="#666666" font-family="宋体, SimSun, sans-serif" text-anchor="end">185</text>
+  <line x1="72" y1="48.0" x2="620" y2="48.0" stroke="#E0E0E0" stroke-width="0.7" />
+  <text x="64" y="52.0" font-size="9" fill="#666666" font-family="宋体, SimSun, sans-serif" text-anchor="end">190</text>
+  <text x="20" y="213.0" font-size="11" fill="#666666" font-family="宋体, SimSun, sans-serif" font-weight="bold" text-anchor="middle">内存 (MB)</text>
+  <line x1="72.0" y1="378" x2="72.0" y2="383" stroke="#666666" stroke-width="1" />
+  <text x="72.0" y="396" font-size="10" fill="#666666" font-family="宋体, SimSun, sans-serif" text-anchor="middle">起始</text>
+  <line x1="150.28571428571428" y1="378" x2="150.28571428571428" y2="383" stroke="#666666" stroke-width="1" />
+  <text x="150.28571428571428" y="396" font-size="10" fill="#666666" font-family="宋体, SimSun, sans-serif" text-anchor="middle">第1天</text>
+  <line x1="228.57142857142856" y1="378" x2="228.57142857142856" y2="383" stroke="#666666" stroke-width="1" />
+  <text x="228.57142857142856" y="396" font-size="10" fill="#666666" font-family="宋体, SimSun, sans-serif" text-anchor="middle">第2天</text>
+  <line x1="306.85714285714283" y1="378" x2="306.85714285714283" y2="383" stroke="#666666" stroke-width="1" />
+  <text x="306.85714285714283" y="396" font-size="10" fill="#666666" font-family="宋体, SimSun, sans-serif" text-anchor="middle">第3天</text>
+  <line x1="385.1428571428571" y1="378" x2="385.1428571428571" y2="383" stroke="#666666" stroke-width="1" />
+  <text x="385.1428571428571" y="396" font-size="10" fill="#666666" font-family="宋体, SimSun, sans-serif" text-anchor="middle">第4天</text>
+  <line x1="463.42857142857144" y1="378" x2="463.42857142857144" y2="383" stroke="#666666" stroke-width="1" />
+  <text x="463.42857142857144" y="396" font-size="10" fill="#666666" font-family="宋体, SimSun, sans-serif" text-anchor="middle">第5天</text>
+  <line x1="541.7142857142857" y1="378" x2="541.7142857142857" y2="383" stroke="#666666" stroke-width="1" />
+  <text x="541.7142857142857" y="396" font-size="10" fill="#666666" font-family="宋体, SimSun, sans-serif" text-anchor="middle">第6天</text>
+  <line x1="620.0" y1="378" x2="620.0" y2="383" stroke="#666666" stroke-width="1" />
+  <text x="620.0" y="396" font-size="10" fill="#666666" font-family="宋体, SimSun, sans-serif" text-anchor="middle">第7天</text>
+  <text x="346.0" y="416" font-size="11" fill="#666666" font-family="宋体, SimSun, sans-serif" font-weight="bold" text-anchor="middle">运行时间</text>
+  <line x1="72" y1="378" x2="620" y2="378" stroke="#666666" stroke-width="1.2" />
+  <line x1="72" y1="48" x2="72" y2="378" stroke="#666666" stroke-width="1.2" />
+  <path d="M 72.0 325.1999999999999 L 150.28571428571428 288.9000000000001 L 228.57142857142856 306.5 L 306.85714285714283 265.8000000000001 L 385.1428571428571 239.40000000000006 L 463.42857142857144 258.0999999999999 L 541.7142857142857 176.69999999999985 L 620.0 163.5 L 620.0 378 L 72.0 378 Z" fill="rgba(43,87,154,0.12)" stroke="none" />
+  <polyline points="72.0,325.1999999999999 150.28571428571428,288.9000000000001 228.57142857142856,306.5 306.85714285714283,265.8000000000001 385.1428571428571,239.40000000000006 463.42857142857144,258.0999999999999 541.7142857142857,176.69999999999985 620.0,163.5" fill="none" stroke="#2B579A" stroke-width="2.2" stroke-linejoin="round" />
+  <circle cx="72.0" cy="325.1999999999999" r="4" fill="#FFFFFF" stroke="#2B579A" stroke-width="2" />
+  <text x="72.0" y="313.1999999999999" font-size="9" fill="#2B579A" font-family="宋体, SimSun, sans-serif" font-weight="bold" text-anchor="middle">164.8</text>
+  <circle cx="150.28571428571428" cy="288.9000000000001" r="4" fill="#FFFFFF" stroke="#2B579A" stroke-width="2" />
+  <text x="150.28571428571428" y="276.9000000000001" font-size="9" fill="#2B579A" font-family="宋体, SimSun, sans-serif" font-weight="bold" text-anchor="middle">168.1</text>
+  <circle cx="228.57142857142856" cy="306.5" r="4" fill="#FFFFFF" stroke="#2B579A" stroke-width="2" />
+  <text x="228.57142857142856" y="294.5" font-size="9" fill="#2B579A" font-family="宋体, SimSun, sans-serif" font-weight="bold" text-anchor="middle">166.5</text>
+  <circle cx="306.85714285714283" cy="265.8000000000001" r="4" fill="#FFFFFF" stroke="#2B579A" stroke-width="2" />
+  <text x="306.85714285714283" y="253.80000000000013" font-size="9" fill="#2B579A" font-family="宋体, SimSun, sans-serif" font-weight="bold" text-anchor="middle">170.2</text>
+  <circle cx="385.1428571428571" cy="239.40000000000006" r="4" fill="#FFFFFF" stroke="#2B579A" stroke-width="2" />
+  <text x="385.1428571428571" y="227.40000000000006" font-size="9" fill="#2B579A" font-family="宋体, SimSun, sans-serif" font-weight="bold" text-anchor="middle">172.6</text>
+  <circle cx="463.42857142857144" cy="258.0999999999999" r="4" fill="#FFFFFF" stroke="#2B579A" stroke-width="2" />
+  <text x="463.42857142857144" y="246.0999999999999" font-size="9" fill="#2B579A" font-family="宋体, SimSun, sans-serif" font-weight="bold" text-anchor="middle">170.9</text>
+  <circle cx="541.7142857142857" cy="176.69999999999985" r="4" fill="#FFFFFF" stroke="#2B579A" stroke-width="2" />
+  <text x="541.7142857142857" y="164.69999999999985" font-size="9" fill="#2B579A" font-family="宋体, SimSun, sans-serif" font-weight="bold" text-anchor="middle">178.3</text>
+  <circle cx="620.0" cy="163.5" r="4" fill="#FFFFFF" stroke="#2B579A" stroke-width="2" />
+  <text x="620.0" y="151.5" font-size="9" fill="#2B579A" font-family="宋体, SimSun, sans-serif" font-weight="bold" text-anchor="middle">179.5</text>
+  <text x="346.0" y="383.0" font-size="10" fill="#C44A4A" font-family="宋体, SimSun, sans-serif" font-weight="bold" text-anchor="middle">7天累计增长约 15 MB  (日均 ≈ 2.1 MB)</text>
+  <text x="330" y="436" font-size="9" fill="#666666" font-family="宋体, SimSun, sans-serif" text-anchor="middle">趋势平缓，日志轮转策略(RotatingFileHandler)上线后无明显内存泄漏</text>
+</svg>

@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" width="660" height="500" viewBox="0 0 660 500">
+  <rect x="0" y="0" width="660" height="500" fill="#FFFFFF" />
+  <text x="330" y="28" font-size="14" fill="#1a1a1a" font-family="宋体, SimSun, sans-serif" font-weight="bold" text-anchor="middle">图5-3  不同场景传输时延对比</text>
+  <line x1="80" y1="400.0" x2="620" y2="400.0" stroke="#DDDDDD" stroke-width="0.8" />
+  <text x="70" y="404.0" font-size="10" fill="#666666" font-family="宋体, SimSun, sans-serif" text-anchor="end">0</text>
+  <line x1="80" y1="329.6" x2="620" y2="329.6" stroke="#DDDDDD" stroke-width="0.8" />
+  <text x="70" y="333.6" font-size="10" fill="#666666" font-family="宋体, SimSun, sans-serif" text-anchor="end">40</text>
+  <line x1="80" y1="259.2" x2="620" y2="259.2" stroke="#DDDDDD" stroke-width="0.8" />
+  <text x="70" y="263.2" font-size="10" fill="#666666" font-family="宋体, SimSun, sans-serif" text-anchor="end">80</text>
+  <line x1="80" y1="188.8" x2="620" y2="188.8" stroke="#DDDDDD" stroke-width="0.8" />
+  <text x="70" y="192.8" font-size="10" fill="#666666" font-family="宋体, SimSun, sans-serif" text-anchor="end">120</text>
+  <line x1="80" y1="118.39999999999998" x2="620" y2="118.39999999999998" stroke="#DDDDDD" stroke-width="0.8" />
+  <text x="70" y="122.39999999999998" font-size="10" fill="#666666" font-family="宋体, SimSun, sans-serif" text-anchor="end">160</text>
+  <line x1="80" y1="48.0" x2="620" y2="48.0" stroke="#DDDDDD" stroke-width="0.8" />
+  <text x="70" y="52.0" font-size="10" fill="#666666" font-family="宋体, SimSun, sans-serif" text-anchor="end">200</text>
+  <text x="24" y="224.0" font-size="11" fill="#666666" font-family="宋体, SimSun, sans-serif" font-weight="bold" text-anchor="middle">时延 (ms)</text>
+  <line x1="80" y1="400" x2="620" y2="400" stroke="#666666" stroke-width="1.2" />
+  <line x1="80" y1="48" x2="80" y2="400" stroke="#666666" stroke-width="1.2" />
+  <rect x="91.52000000000001" y="368.32" width="30.599999999999998" height="31.68" fill="#6BAED6" rx="2" ry="2" />
+  <text x="106.82000000000001" y="362.32" font-size="9" fill="#6BAED6" font-family="宋体, SimSun, sans-serif" font-weight="bold" text-anchor="middle">18</text>
+  <rect x="133.64000000000001" y="323.44" width="30.599999999999998" height="76.56" fill="#2B579A" rx="2" ry="2" />
+  <text x="148.94000000000003" y="317.44" font-size="9" fill="#2B579A" font-family="宋体, SimSun, sans-serif" font-weight="bold" text-anchor="middle">43.5</text>
+  <rect x="175.76" y="279.08799999999997" width="30.599999999999998" height="120.912" fill="#E68A2E" rx="2" ry="2" />
+  <text x="191.06" y="273.08799999999997" font-size="9" fill="#E68A2E" font-family="宋体, SimSun, sans-serif" font-weight="bold" text-anchor="middle">68.7</text>
+  <rect x="217.88" y="220.48" width="30.599999999999998" height="179.52" fill="#C44A4A" rx="2" ry="2" />
+  <text x="233.18" y="214.48" font-size="9" fill="#C44A4A" font-family="宋体, SimSun, sans-serif" font-weight="bold" text-anchor="middle">102</text>
+  <text x="170.0" y="420" font-size="11" fill="#333" font-family="宋体, SimSun, sans-serif" font-weight="bold" text-anchor="middle">Wi-Fi 端到端</text>
+  <rect x="271.52" y="327.84000000000003" width="30.599999999999998" height="72.16" fill="#6BAED6" rx="2" ry="2" />
+  <text x="286.82" y="321.84000000000003" font-size="9" fill="#6BAED6" font-family="宋体, SimSun, sans-serif" font-weight="bold" text-anchor="middle">41</text>
+  <rect x="313.64" y="264.832" width="30.599999999999998" height="135.168" fill="#2B579A" rx="2" ry="2" />
+  <text x="328.94" y="258.832" font-size="9" fill="#2B579A" font-family="宋体, SimSun, sans-serif" font-weight="bold" text-anchor="middle">76.8</text>
+  <rect x="355.76" y="174.19199999999998" width="30.599999999999998" height="225.80800000000002" fill="#E68A2E" rx="2" ry="2" />
+  <text x="371.06" y="168.19199999999998" font-size="9" fill="#E68A2E" font-family="宋体, SimSun, sans-serif" font-weight="bold" text-anchor="middle">128.3</text>
+  <rect x="397.88" y="86.71999999999997" width="30.599999999999998" height="313.28000000000003" fill="#C44A4A" rx="2" ry="2" />
+  <text x="413.18" y="80.71999999999997" font-size="9" fill="#C44A4A" font-family="宋体, SimSun, sans-serif" font-weight="bold" text-anchor="middle">178</text>
+  <text x="350.0" y="420" font-size="11" fill="#333" font-family="宋体, SimSun, sans-serif" font-weight="bold" text-anchor="middle">BLE 端到端</text>
+  <rect x="468.8" y="163.28" width="122.39999999999999" height="236.72" fill="#4A8B5A" rx="2" ry="2" />
+  <text x="530.0" y="157.28" font-size="9" fill="#4A8B5A" font-family="宋体, SimSun, sans-serif" font-weight="bold" text-anchor="middle">134.5</text>
+  <text x="530.0" y="420" font-size="11" fill="#333" font-family="宋体, SimSun, sans-serif" font-weight="bold" text-anchor="middle">跨节点联动</text>
+  <rect x="100" y="452" width="16" height="12" fill="#6BAED6" rx="2" ry="2" />
+  <text x="122" y="462" font-size="10" fill="#333" font-family="宋体, SimSun, sans-serif" text-anchor="start">最小值</text>
+  <rect x="206" y="452" width="16" height="12" fill="#2B579A" rx="2" ry="2" />
+  <text x="228" y="462" font-size="10" fill="#333" font-family="宋体, SimSun, sans-serif" text-anchor="start">平均值</text>
+  <rect x="312" y="452" width="16" height="12" fill="#E68A2E" rx="2" ry="2" />
+  <text x="334" y="462" font-size="10" fill="#333" font-family="宋体, SimSun, sans-serif" text-anchor="start">P95</text>
+  <rect x="418" y="452" width="16" height="12" fill="#C44A4A" rx="2" ry="2" />
+  <text x="440" y="462" font-size="10" fill="#333" font-family="宋体, SimSun, sans-serif" text-anchor="start">最大值</text>
+  <rect x="524" y="452" width="16" height="12" fill="#4A8B5A" rx="2" ry="2" />
+  <text x="546" y="462" font-size="10" fill="#333" font-family="宋体, SimSun, sans-serif" text-anchor="start">总时延</text>
+  <text x="330" y="484" font-size="9" fill="#666666" font-family="宋体, SimSun, sans-serif" text-anchor="middle">Wi-Fi/BLE 各200样本；跨节点联动50次测试</text>
+</svg>

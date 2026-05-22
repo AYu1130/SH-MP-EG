@@ -1,0 +1,122 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" width="680" height="1020" viewBox="0 0 680 1020" font-family="宋体, SimSun, serif">
+  <rect x="0" y="0" width="680" height="1020" fill="#FFFFFF" stroke="none" />
+  <text font-size="14" fill="#1a1a1a" font-weight="bold" x="340" y="38" text-anchor="middle">技术路线图</text>
+  <rect x="150" y="72" width="380" height="112" rx="8" ry="8" fill="#E8EEF7" stroke="#2B579A" stroke-width="1.5" />
+  <rect x="150" y="72" width="42" height="112" rx="8" ry="8" fill="#2B579A" />
+  <rect x="184" y="176" width="8" height="8" fill="#2B579A" />
+  <rect x="184" y="72" width="8" height="8" fill="#2B579A" />
+  <text font-size="20" fill="#FFFFFF" font-weight="bold" x="171" y="130" text-anchor="middle">01</text>
+  <text font-size="13" fill="#222222" font-weight="bold" x="365.0" y="94" text-anchor="middle">第一阶段：文献调研与需求分析</text>
+  <circle cx="202" cy="117" r="2.5" fill="#2B579A" />
+  <text font-size="11" fill="#444444" x="210" y="121" text-anchor="start">梳理国内外多协议网关与边缘计算研究成果</text>
+  <circle cx="202" cy="135" r="2.5" fill="#2B579A" />
+  <text font-size="11" fill="#444444" x="210" y="139" text-anchor="start">识别协议异构、云端依赖、时延偏高等痛点</text>
+  <circle cx="202" cy="153" r="2.5" fill="#2B579A" />
+  <text font-size="11" fill="#444444" x="210" y="157" text-anchor="start">明确网关功能边界与性能设计指标</text>
+  <rect x="545" y="108.0" width="120" height="40" rx="5" ry="5" fill="#F5F5F5" stroke="#999999" stroke-width="1" />
+  <text font-size="10" fill="#555555" x="605.0" y="126.5" text-anchor="middle">文献综述报告</text>
+  <text font-size="10" fill="#555555" x="605.0" y="139.5" text-anchor="middle">需求规格文档</text>
+  <line x1="530" y1="128.0" x2="537" y2="128.0" stroke="#8BAAC4" stroke-width="1.2" stroke-dasharray="4,3" />
+  <polygon points="537,124.0 537,132.0 545,128.0" fill="#8BAAC4" />
+  <rect x="150" y="212" width="380" height="112" rx="8" ry="8" fill="#E8EEF7" stroke="#2B579A" stroke-width="1.5" />
+  <rect x="150" y="212" width="42" height="112" rx="8" ry="8" fill="#2B579A" />
+  <rect x="184" y="316" width="8" height="8" fill="#2B579A" />
+  <rect x="184" y="212" width="8" height="8" fill="#2B579A" />
+  <text font-size="20" fill="#FFFFFF" font-weight="bold" x="171" y="270" text-anchor="middle">02</text>
+  <text font-size="13" fill="#222222" font-weight="bold" x="365.0" y="234" text-anchor="middle">第二阶段：总体方案设计</text>
+  <circle cx="202" cy="257" r="2.5" fill="#2B579A" />
+  <text font-size="11" fill="#444444" x="210" y="261" text-anchor="start">设计“感知层-边缘层-网络层-应用层”四层架构</text>
+  <circle cx="202" cy="275" r="2.5" fill="#2B579A" />
+  <text font-size="11" fill="#444444" x="210" y="279" text-anchor="start">确定统一JSON数据模型与MQTT主题规范</text>
+  <circle cx="202" cy="293" r="2.5" fill="#2B579A" />
+  <text font-size="11" fill="#444444" x="210" y="297" text-anchor="start">定义模块接口与数据流路径</text>
+  <rect x="545" y="248.0" width="120" height="40" rx="5" ry="5" fill="#F5F5F5" stroke="#999999" stroke-width="1" />
+  <text font-size="10" fill="#555555" x="605.0" y="266.5" text-anchor="middle">系统架构图</text>
+  <text font-size="10" fill="#555555" x="605.0" y="279.5" text-anchor="middle">模块接口定义</text>
+  <line x1="530" y1="268.0" x2="537" y2="268.0" stroke="#8BAAC4" stroke-width="1.2" stroke-dasharray="4,3" />
+  <polygon points="537,264.0 537,272.0 545,268.0" fill="#8BAAC4" />
+  <rect x="150" y="352" width="380" height="112" rx="8" ry="8" fill="#E8EEF7" stroke="#2B579A" stroke-width="1.5" />
+  <rect x="150" y="352" width="42" height="112" rx="8" ry="8" fill="#2B579A" />
+  <rect x="184" y="456" width="8" height="8" fill="#2B579A" />
+  <rect x="184" y="352" width="8" height="8" fill="#2B579A" />
+  <text font-size="20" fill="#FFFFFF" font-weight="bold" x="171" y="410" text-anchor="middle">03</text>
+  <text font-size="13" fill="#222222" font-weight="bold" x="365.0" y="374" text-anchor="middle">第三阶段：硬件选型与平台搭建</text>
+  <circle cx="202" cy="397" r="2.5" fill="#2B579A" />
+  <text font-size="11" fill="#444444" x="210" y="401" text-anchor="start">树莓派4B（2GB）作为网关核心主控</text>
+  <circle cx="202" cy="415" r="2.5" fill="#2B579A" />
+  <text font-size="11" fill="#444444" x="210" y="419" text-anchor="start">ESP32-S3 + SHT30/BH1750 作为 Wi-Fi 终端</text>
+  <circle cx="202" cy="433" r="2.5" fill="#2B579A" />
+  <text font-size="11" fill="#444444" x="210" y="437" text-anchor="start">STM32F103 + HM-10 作为 BLE 终端</text>
+  <rect x="545" y="388.0" width="120" height="40" rx="5" ry="5" fill="#F5F5F5" stroke="#999999" stroke-width="1" />
+  <text font-size="10" fill="#555555" x="605.0" y="406.5" text-anchor="middle">硬件平台搭建</text>
+  <text font-size="10" fill="#555555" x="605.0" y="419.5" text-anchor="middle">运行环境配置</text>
+  <line x1="530" y1="408.0" x2="537" y2="408.0" stroke="#8BAAC4" stroke-width="1.2" stroke-dasharray="4,3" />
+  <polygon points="537,404.0 537,412.0 545,408.0" fill="#8BAAC4" />
+  <rect x="150" y="492" width="380" height="112" rx="8" ry="8" fill="#E8EEF7" stroke="#2B579A" stroke-width="1.5" />
+  <rect x="150" y="492" width="42" height="112" rx="8" ry="8" fill="#2B579A" />
+  <rect x="184" y="596" width="8" height="8" fill="#2B579A" />
+  <rect x="184" y="492" width="8" height="8" fill="#2B579A" />
+  <text font-size="20" fill="#FFFFFF" font-weight="bold" x="171" y="550" text-anchor="middle">04</text>
+  <text font-size="13" fill="#222222" font-weight="bold" x="365.0" y="514" text-anchor="middle">第四阶段：软件模块开发与单元测试</text>
+  <circle cx="202" cy="537" r="2.5" fill="#2B579A" />
+  <text font-size="11" fill="#444444" x="210" y="541" text-anchor="start">协议适配器：Wi-Fi(HTTP/TCP)+BLE(Bleak)双模接收</text>
+  <circle cx="202" cy="555" r="2.5" fill="#2B579A" />
+  <text font-size="11" fill="#444444" x="210" y="559" text-anchor="start">数据转换器：异构数据→统一JSON Schema校验</text>
+  <circle cx="202" cy="573" r="2.5" fill="#2B579A" />
+  <text font-size="11" fill="#444444" x="210" y="577" text-anchor="start">消息路由：paho-mqtt发布订阅 + SQLite离线缓存</text>
+  <circle cx="202" cy="591" r="2.5" fill="#2B579A" />
+  <text font-size="11" fill="#444444" x="210" y="595" text-anchor="start">联动引擎：Node-RED流程编排 + Flask Web管理台</text>
+  <rect x="545" y="528.0" width="120" height="40" rx="5" ry="5" fill="#F5F5F5" stroke="#999999" stroke-width="1" />
+  <text font-size="10" fill="#555555" x="605.0" y="542.0" text-anchor="middle">协议适配器</text>
+  <text font-size="10" fill="#555555" x="605.0" y="553.0" text-anchor="middle">消息路由器</text>
+  <text font-size="10" fill="#555555" x="605.0" y="564.0" text-anchor="middle">联动规则引擎</text>
+  <line x1="530" y1="548.0" x2="537" y2="548.0" stroke="#8BAAC4" stroke-width="1.2" stroke-dasharray="4,3" />
+  <polygon points="537,544.0 537,552.0 545,548.0" fill="#8BAAC4" />
+  <rect x="150" y="652" width="380" height="112" rx="8" ry="8" fill="#E8EEF7" stroke="#2B579A" stroke-width="1.5" />
+  <rect x="150" y="652" width="42" height="112" rx="8" ry="8" fill="#2B579A" />
+  <rect x="184" y="756" width="8" height="8" fill="#2B579A" />
+  <rect x="184" y="652" width="8" height="8" fill="#2B579A" />
+  <text font-size="20" fill="#FFFFFF" font-weight="bold" x="171" y="710" text-anchor="middle">05</text>
+  <text font-size="13" fill="#222222" font-weight="bold" x="365.0" y="674" text-anchor="middle">第五阶段：系统集成与测试验证</text>
+  <circle cx="202" cy="697" r="2.5" fill="#2B579A" />
+  <text font-size="11" fill="#444444" x="210" y="701" text-anchor="start">功能测试：7项用例覆盖设备接入至断网自治全流程</text>
+  <circle cx="202" cy="715" r="2.5" fill="#2B579A" />
+  <text font-size="11" fill="#444444" x="210" y="719" text-anchor="start">性能测试：端到端时延、跨节点联动、并发与丢包率</text>
+  <circle cx="202" cy="733" r="2.5" fill="#2B579A" />
+  <text font-size="11" fill="#444444" x="210" y="737" text-anchor="start">稳定性测试：168h长时运行 + 多断网时长恢复</text>
+  <rect x="545" y="688.0" width="120" height="40" rx="5" ry="5" fill="#F5F5F5" stroke="#999999" stroke-width="1" />
+  <text font-size="10" fill="#555555" x="605.0" y="702.0" text-anchor="middle">功能测试报告</text>
+  <text font-size="10" fill="#555555" x="605.0" y="713.0" text-anchor="middle">性能测试报告</text>
+  <text font-size="10" fill="#555555" x="605.0" y="724.0" text-anchor="middle">稳定性测试报告</text>
+  <line x1="530" y1="708.0" x2="537" y2="708.0" stroke="#8BAAC4" stroke-width="1.2" stroke-dasharray="4,3" />
+  <polygon points="537,704.0 537,712.0 545,708.0" fill="#8BAAC4" />
+  <rect x="150" y="812" width="380" height="112" rx="8" ry="8" fill="#E8EEF7" stroke="#2B579A" stroke-width="1.5" />
+  <rect x="150" y="812" width="42" height="112" rx="8" ry="8" fill="#2B579A" />
+  <rect x="184" y="916" width="8" height="8" fill="#2B579A" />
+  <rect x="184" y="812" width="8" height="8" fill="#2B579A" />
+  <text font-size="20" fill="#FFFFFF" font-weight="bold" x="171" y="870" text-anchor="middle">06</text>
+  <text font-size="13" fill="#222222" font-weight="bold" x="365.0" y="834" text-anchor="middle">第六阶段：结果分析与总结展望</text>
+  <circle cx="202" cy="857" r="2.5" fill="#2B579A" />
+  <text font-size="11" fill="#444444" x="210" y="861" text-anchor="start">设计指标达标分析：五项指标全部达标且优于阈值</text>
+  <circle cx="202" cy="875" r="2.5" fill="#2B579A" />
+  <text font-size="11" fill="#444444" x="210" y="879" text-anchor="start">与商业网关方案的定性对比分析</text>
+  <circle cx="202" cy="893" r="2.5" fill="#2B579A" />
+  <text font-size="11" fill="#444444" x="210" y="897" text-anchor="start">总结方法优势与不足，提出后续改进方向</text>
+  <rect x="545" y="848.0" width="120" height="40" rx="5" ry="5" fill="#F5F5F5" stroke="#999999" stroke-width="1" />
+  <text font-size="10" fill="#555555" x="605.0" y="866.5" text-anchor="middle">论文撰写</text>
+  <text font-size="10" fill="#555555" x="605.0" y="879.5" text-anchor="middle">答辩准备</text>
+  <line x1="530" y1="868.0" x2="537" y2="868.0" stroke="#8BAAC4" stroke-width="1.2" stroke-dasharray="4,3" />
+  <polygon points="537,864.0 537,872.0 545,868.0" fill="#8BAAC4" />
+  <line x1="340" y1="190" x2="340" y2="198" stroke="#2B579A" stroke-width="1.5" />
+  <polygon points="335,198 345,198 340,206" fill="#2B579A" />
+  <line x1="340" y1="330" x2="340" y2="338" stroke="#2B579A" stroke-width="1.5" />
+  <polygon points="335,338 345,338 340,346" fill="#2B579A" />
+  <line x1="340" y1="470" x2="340" y2="478" stroke="#2B579A" stroke-width="1.5" />
+  <polygon points="335,478 345,478 340,486" fill="#2B579A" />
+  <line x1="340" y1="610" x2="340" y2="638" stroke="#2B579A" stroke-width="1.5" />
+  <polygon points="335,638 345,638 340,646" fill="#2B579A" />
+  <line x1="340" y1="770" x2="340" y2="798" stroke="#2B579A" stroke-width="1.5" />
+  <polygon points="335,798 345,798 340,806" fill="#2B579A" />
+  <text font-size="12" fill="#2B579A" font-weight="bold" x="340" y="968" text-anchor="middle">六阶段前后衔接、逐层递进，构成从理论分析到工程验证的完整研究闭环</text>
+</svg>

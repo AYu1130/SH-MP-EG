@@ -540,9 +540,30 @@ class AdminStore:
         with self._lock:
             conn = _connect(self._db_path)
             try:
-                cur = conn.execute("DELETE FROM admin_nodes WHERE id=?", (node_id,))
-                if cur.rowcount == 0:
+                row = conn.execute(
+                    "SELECT device_type, native_device_id FROM admin_nodes WHERE id=?",
+                    (node_id,),
+                ).fetchone()
+                if not row:
                     raise ValueError("节点不存在")
+                dt, nid = row["device_type"], row["native_device_id"]
+                conn.execute("DELETE FROM admin_nodes WHERE id=?", (node_id,))
+                conn.execute(
+                    "DELETE FROM node_presence WHERE device_type=? AND device_id=?",
+                    (dt, nid),
+                )
+                conn.commit()
+            finally:
+                conn.close()
+
+    def delete_presence(self, device_type: str, device_id: str) -> None:
+        with self._lock:
+            conn = _connect(self._db_path)
+            try:
+                conn.execute(
+                    "DELETE FROM node_presence WHERE device_type=? AND device_id=?",
+                    (device_type, device_id),
+                )
                 conn.commit()
             finally:
                 conn.close()

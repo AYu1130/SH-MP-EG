@@ -1,0 +1,92 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" width="660" height="720" viewBox="0 0 660 720">
+  <rect x="0" y="0" width="660" height="720" fill="#FFFFFF" />
+  <text x="330" y="26" font-size="14" fill="#1a1a1a" font-family="宋体, SimSun, sans-serif" font-weight="bold" text-anchor="middle">图4-1  软件系统总程序流程图</text>
+  <rect x="80" y="48" width="150" height="36" rx="6" ry="6" fill="#F2F6FA" stroke="#2B579A" stroke-width="1.2" />
+  <text x="155.0" y="71.0" font-size="11" fill="#333" font-family="宋体, SimSun, sans-serif" font-weight="bold" text-anchor="middle">解析命令行参数</text>
+  <line x1="155.0" y1="84" x2="155.0" y2="92" stroke="#2B579A" stroke-width="1.2" />
+  <polygon points="150.0,91 160.0,91 155.0,98" fill="#2B579A" />
+  <rect x="80" y="100" width="150" height="36" rx="6" ry="6" fill="#F2F6FA" stroke="#2B579A" stroke-width="1.2" />
+  <text x="155.0" y="123.0" font-size="11" fill="#333" font-family="宋体, SimSun, sans-serif" font-weight="bold" text-anchor="middle">装配全局配置</text>
+  <line x1="155.0" y1="136" x2="155.0" y2="144" stroke="#2B579A" stroke-width="1.2" />
+  <polygon points="150.0,143 160.0,143 155.0,150" fill="#2B579A" />
+  <rect x="80" y="152" width="150" height="36" rx="6" ry="6" fill="#F2F6FA" stroke="#2B579A" stroke-width="1.2" />
+  <text x="155.0" y="175.0" font-size="11" fill="#333" font-family="宋体, SimSun, sans-serif" font-weight="bold" text-anchor="middle">初始化日志 / SQLite</text>
+  <line x1="155.0" y1="188" x2="155.0" y2="196" stroke="#2B579A" stroke-width="1.2" />
+  <polygon points="150.0,195 160.0,195 155.0,202" fill="#2B579A" />
+  <rect x="80" y="204" width="150" height="36" rx="6" ry="6" fill="#F2F6FA" stroke="#2B579A" stroke-width="1.2" />
+  <text x="155.0" y="227.0" font-size="11" fill="#333" font-family="宋体, SimSun, sans-serif" font-weight="bold" text-anchor="middle">连接 EMQX Broker</text>
+  <line x1="155.0" y1="240" x2="155.0" y2="248" stroke="#2B579A" stroke-width="1.2" />
+  <polygon points="150.0,247 160.0,247 155.0,254" fill="#2B579A" />
+  <rect x="80" y="256" width="150" height="36" rx="6" ry="6" fill="#F2F6FA" stroke="#2B579A" stroke-width="1.2" />
+  <text x="155.0" y="279.0" font-size="11" fill="#333" font-family="宋体, SimSun, sans-serif" font-weight="bold" text-anchor="middle">并发拉起适配器</text>
+  <line x1="230" y1="274" x2="186" y2="274" stroke="#2B579A" stroke-width="1.2" />
+  <polygon points="185,270 185,278 192,274" fill="#2B579A" />
+  <line x1="230" y1="282" x2="406" y2="282" stroke="#2B579A" stroke-width="1.2" />
+  <polygon points="405,278 405,286 412,282" fill="#2B579A" />
+  <rect x="130.0" y="300" width="140" height="50" rx="6" ry="6" fill="#FFFFFF" stroke="#4A8B5A" stroke-width="1.5" />
+  <text x="200" y="318" font-size="11" fill="#4A8B5A" font-family="宋体, SimSun, sans-serif" font-weight="bold" text-anchor="middle">Wi-Fi 适配器</text>
+  <text x="200" y="338" font-size="9" fill="#666" font-family="宋体, SimSun, sans-serif" text-anchor="middle">TCP Socket / HTTP 接收</text>
+  <rect x="350.0" y="300" width="140" height="50" rx="6" ry="6" fill="#FFFFFF" stroke="#C07030" stroke-width="1.5" />
+  <text x="420" y="318" font-size="11" fill="#C07030" font-family="宋体, SimSun, sans-serif" font-weight="bold" text-anchor="middle">BLE 适配器</text>
+  <text x="420" y="338" font-size="9" fill="#666" font-family="宋体, SimSun, sans-serif" text-anchor="middle">Bleak GATT 扫描/接收</text>
+  <line x1="200" y1="350" x2="200" y2="370" stroke="#4A8B5A" stroke-width="1.2" />
+  <polygon points="195,369 205,369 200,376" fill="#4A8B5A" />
+  <line x1="420" y1="350" x2="420" y2="370" stroke="#C07030" stroke-width="1.2" />
+  <polygon points="415,369 425,369 420,376" fill="#C07030" />
+  <text x="200" y="370" font-size="9" fill="#4A8B5A" font-family="宋体, SimSun, sans-serif" text-anchor="middle">原始数据帧</text>
+  <text x="420" y="370" font-size="9" fill="#C07030" font-family="宋体, SimSun, sans-serif" text-anchor="middle">原始数据帧</text>
+  <rect x="190.0" y="376" width="240" height="42" rx="6" ry="6" fill="#EAF0F7" stroke="#2B579A" stroke-width="1.5" />
+  <text x="310" y="394" font-size="11" fill="#2B579A" font-family="宋体, SimSun, sans-serif" font-weight="bold" text-anchor="middle">数据转换与校验</text>
+  <text x="310" y="412" font-size="9" fill="#555" font-family="宋体, SimSun, sans-serif" text-anchor="middle">JSON映射 / 单位标准化 / jsonschema校验</text>
+  <line x1="310" y1="418" x2="310" y2="436" stroke="#2B579A" stroke-width="1.2" />
+  <polygon points="305,435 315,435 310,442" fill="#2B579A" />
+  <rect x="210.0" y="442" width="200" height="44" rx="6" ry="6" fill="#FFFFFF" stroke="#2B579A" stroke-width="1.5" />
+  <text x="310" y="460" font-size="11" fill="#2B579A" font-family="宋体, SimSun, sans-serif" font-weight="bold" text-anchor="middle">MQTT 发布器 (上行回调)</text>
+  <text x="310" y="478" font-size="9" fill="#666" font-family="宋体, SimSun, sans-serif" text-anchor="middle">paho-mqtt → EMQX Broker</text>
+  <rect x="534.0" y="376" width="72" height="130" rx="8" ry="8" fill="#F2F6FA" stroke="#2B579A" stroke-width="2" />
+  <text x="570" y="398" font-size="11" fill="#2B579A" font-family="宋体, SimSun, sans-serif" font-weight="bold" text-anchor="middle">EMQX</text>
+  <text x="570" y="418" font-size="10" fill="#555" font-family="宋体, SimSun, sans-serif" text-anchor="middle">消息</text>
+  <text x="570" y="434" font-size="10" fill="#555" font-family="宋体, SimSun, sans-serif" text-anchor="middle">代理</text>
+  <line x1="410.0" y1="464" x2="528.0" y2="464" stroke="#2B579A" stroke-width="1.2" />
+  <polygon points="527.0,460 527.0,468 534.0,464" fill="#2B579A" />
+  <text x="472.0" y="452" font-size="8" fill="#2B579A" font-family="宋体, SimSun, sans-serif" text-anchor="middle">publish</text>
+  <rect x="614.0" y="382" width="60" height="30" rx="4" ry="4" fill="#FFFFFF" stroke="#4A8B5A" stroke-width="1" />
+  <text x="644.0" y="402" font-size="9" fill="#4A8B5A" font-family="宋体, SimSun, sans-serif" font-weight="bold" text-anchor="middle">Node-RED</text>
+  <line x1="606.0" y1="397" x2="608.0" y2="397" stroke="#4A8B5A" stroke-width="1" stroke-dasharray="3,3" />
+  <polygon points="607.0,393 607.0,401 614.0,397" fill="#4A8B5A" />
+  <rect x="614.0" y="431" width="60" height="30" rx="4" ry="4" fill="#FFFFFF" stroke="#C07030" stroke-width="1" />
+  <text x="644.0" y="451" font-size="9" fill="#C07030" font-family="宋体, SimSun, sans-serif" font-weight="bold" text-anchor="middle">Web 后台</text>
+  <line x1="606.0" y1="446" x2="608.0" y2="446" stroke="#C07030" stroke-width="1" stroke-dasharray="3,3" />
+  <polygon points="607.0,442 607.0,450 614.0,446" fill="#C07030" />
+  <rect x="614.0" y="480" width="60" height="30" rx="4" ry="4" fill="#FFFFFF" stroke="#888888" stroke-width="1" />
+  <text x="644.0" y="500" font-size="9" fill="#888888" font-family="宋体, SimSun, sans-serif" font-weight="bold" text-anchor="middle">SQLite</text>
+  <line x1="606.0" y1="495" x2="608.0" y2="495" stroke="#888888" stroke-width="1" stroke-dasharray="3,3" />
+  <polygon points="607.0,491 607.0,499 614.0,495" fill="#888888" />
+  <line x1="534.0" y1="502" x2="404.0" y2="502" stroke="#C44A4A" stroke-width="1.2" stroke-dasharray="4,3" />
+  <polygon points="403.0,498 403.0,506 410.0,502" fill="#C44A4A" />
+  <text x="310" y="496" font-size="9" fill="#C44A4A" font-family="宋体, SimSun, sans-serif" text-anchor="middle">command 主题 (下行)</text>
+  <polygon points="310,526.0 370.0,551.0 310,576.0 250.0,551.0" fill="#FFF5F5" stroke="#C44A4A" stroke-width="1.2" />
+  <text x="310" y="551.0" font-size="10" fill="#C44A4A" font-family="宋体, SimSun, sans-serif" font-weight="bold" text-anchor="middle">指令分发</text>
+  <line x1="310" y1="502" x2="310" y2="520" stroke="#C44A4A" stroke-width="1.2" stroke-dasharray="3,3" />
+  <polygon points="305,519 315,519 310,526" fill="#C44A4A" />
+  <line x1="250.0" y1="541.0" x2="124.0" y2="541.0" stroke="#C44A4A" stroke-width="1.2" stroke-dasharray="4,3" />
+  <polygon points="123.0,537.0 123.0,545.0 130.0,541.0" fill="#C44A4A" />
+  <text x="190.0" y="533.0" font-size="8" fill="#C44A4A" font-family="宋体, SimSun, sans-serif" text-anchor="middle">Wi-Fi 指令</text>
+  <line x1="250.0" y1="561.0" x2="344.0" y2="561.0" stroke="#C44A4A" stroke-width="1.2" stroke-dasharray="4,3" />
+  <polygon points="343.0,557.0 343.0,565.0 350.0,561.0" fill="#C44A4A" />
+  <text x="300.0" y="553.0" font-size="8" fill="#C44A4A" font-family="宋体, SimSun, sans-serif" text-anchor="middle">BLE 指令</text>
+  <text x="200" y="290" font-size="9" fill="#4A8B5A" font-family="宋体, SimSun, sans-serif" text-anchor="middle">⬆ 传感器数据上报</text>
+  <text x="200" y="328" font-size="9" fill="#C44A4A" font-family="宋体, SimSun, sans-serif" text-anchor="middle">⬇ 控制指令下发</text>
+  <line x1="120" y1="620" x2="170" y2="620" stroke="#2B579A" stroke-width="1.5" />
+  <polygon points="170,616 170,624 180,620" fill="#2B579A" />
+  <text x="240" y="625" font-size="10" fill="#555" font-family="宋体, SimSun, sans-serif" font-weight="bold" text-anchor="start">上行数据流</text>
+  <line x1="120" y1="642" x2="170" y2="642" stroke="#C44A4A" stroke-width="1.5" stroke-dasharray="4,3" />
+  <polygon points="170,638 170,646 180,642" fill="#C44A4A" />
+  <text x="240" y="647" font-size="10" fill="#555" font-family="宋体, SimSun, sans-serif" font-weight="bold" text-anchor="start">下行控制流</text>
+  <line x1="370" y1="664" x2="420" y2="664" stroke="#4A8B5A" stroke-width="1.5" />
+  <text x="430" y="669" font-size="10" fill="#4A8B5A" font-family="宋体, SimSun, sans-serif" font-weight="bold" text-anchor="start">Wi-Fi 路径</text>
+  <line x1="500" y1="664" x2="550" y2="664" stroke="#C07030" stroke-width="1.5" />
+  <text x="560" y="669" font-size="10" fill="#C07030" font-family="宋体, SimSun, sans-serif" font-weight="bold" text-anchor="start">BLE 路径</text>
+  <text x="330" y="700" font-size="10" fill="#888888" font-family="宋体, SimSun, sans-serif" text-anchor="middle">运行模型：MainThread 主控 + Wi-Fi 适配 asyncio + BLE 适配 asyncio + MQTT 发布线程</text>
+</svg>

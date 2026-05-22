@@ -233,3 +233,45 @@ def register_admin_routes(app: Flask, cfg: GatewayConfig) -> None:
             return jsonify({"ok": True})
         except ValueError as e:
             return jsonify({"ok": False, "error": str(e)}), 400
+
+    @app.delete("/api/v1/admin/nodes/presence")
+    @login_required
+    def nodes_delete_presence():
+        body = request.get_json(silent=True) or {}
+        device_type = str(body.get("device_type", "")).strip().lower()
+        device_id = str(body.get("device_id", "")).strip()
+        if not device_type or not device_id:
+            return jsonify({"ok": False, "error": "device_type 和 device_id 不能为空"}), 400
+        try:
+            store.delete_presence(device_type, device_id)
+            return jsonify({"ok": True})
+        except Exception as e:
+            return jsonify({"ok": False, "error": str(e)}), 400
+
+    # ------------------------- 设备控制 API -------------------------- #
+    @app.post("/api/v1/admin/device/control")
+    @login_required
+    def device_control():
+        body = request.get_json(silent=True) or {}
+        device_type = str(body.get("device_type", "")).strip().lower()
+        device_id = str(body.get("device_id", "")).strip()
+        command = body.get("command", {})
+        if not device_type or not device_id or not isinstance(command, dict):
+            return jsonify({"ok": False, "error": "device_type、device_id 和 command 不能为空"}), 400
+        try:
+            import paho.mqtt.client as mqtt_ctrl
+            ctrl = mqtt_ctrl.Client(client_id="web_ctrl_" + str(session.get("user_id", "anon")))
+            if cfg.mqtt_username:
+                ctrl.username_pw_set(cfg.mqtt_username, cfg.mqtt_password)
+            ctrl.connect(cfg.mqtt_host, cfg.mqtt_port, keepalive=5)
+            ctrl.loop_start()
+            topic = f"{cfg.topic_prefix}/command/{device_type}/{device_id}"
+            import json as _json
+            ctrl.publish(topic, _json.dumps(command), qos=1)
+            ctrl.loop_stop()
+            ctrl.disconnect()
+            logger.info("device control -> %s/%s: %s", device_type, device_id, command)
+            return jsonify({"ok": True, "topic": topic, "command": command})
+        except Exception as e:
+            logger.exception("device control failed")
+            return jsonify({"ok": False, "error": str(e)}), 500
