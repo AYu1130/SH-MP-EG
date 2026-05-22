@@ -196,7 +196,7 @@
     "type": "function",
     "z": "tab-dashboard",
     "name": "parse sensor data",
-    "func": "const p = (msg.payload && msg.payload.payload) || {};\nconst devType = (msg.payload && msg.payload.device_type) || 'unknown';\nconst devId = (msg.payload && msg.payload.device_id) || 'unknown';\n\nconst msgs = [];\n\nif (typeof p.temperature === 'number') {\n  msgs.push({\n    topic: 'temperature',\n    payload: p.temperature,\n    device_type: devType,\n    device_id: devId\n  });\n}\nif (typeof p.humidity === 'number') {\n  msgs.push({\n    topic: 'humidity',\n    payload: p.humidity,\n    device_type: devType,\n    device_id: devId\n  });\n}\n\nconst lightVal = (typeof p.light === 'number') ? p.light : ((typeof p.l === 'number') ? p.l : ((typeof p.illuminance === 'number') ? p.illuminance : undefined));\nif (typeof lightVal === 'number') {\n  msgs.push({\n    topic: 'light',\n    payload: lightVal,\n    device_type: devType,\n    device_id: devId\n  });\n}\n\nif (typeof p.led === 'string') {\n  flow.set('led_status_' + devType, { color: p.led, device_id: devId, device_type: devType, ts: Date.now() });\n  msgs.push({\n    topic: 'led_status',\n    payload: p.led,\n    device_type: devType,\n    device_id: devId\n  });\n}\n\nif (typeof p.buzzer !== 'undefined' || typeof p.beep !== 'undefined') {\n  const buzzVal = (typeof p.buzzer === 'number') ? p.buzzer : (typeof p.beep === 'number') ? p.beep : 0;\n  flow.set('buzzer_status_' + devType, { active: buzzVal > 0, value: buzzVal, device_id: devId, device_type: devType, ts: Date.now() });\n  msgs.push({\n    topic: 'buzzer_status',\n    payload: buzzVal > 0 ? 'ON' : 'OFF',\n    device_type: devType,\n    device_id: devId\n  });\n}\n\nif (typeof p.alarm !== 'undefined') {\n  msgs.push({\n    topic: 'alarm',\n    payload: p.alarm ? 'ACTIVE' : 'INACTIVE',\n    device_type: devType,\n    device_id: devId\n  });\n}\n\nreturn msgs.length > 0 ? [msgs] : null;\n",
+    "func": "const p = (msg.payload && msg.payload.payload) || {};\nconst devType = (msg.payload && msg.payload.device_type) || 'unknown';\nconst devId = (msg.payload && msg.payload.device_id) || 'unknown';\n\nconst msgs = [];\n\nif (typeof p.temperature === 'number') {\n  msgs.push({\n    topic: 'temperature',\n    payload: p.temperature,\n    device_type: devType,\n    device_id: devId\n  });\n}\nif (typeof p.humidity === 'number') {\n  msgs.push({\n    topic: 'humidity',\n    payload: p.humidity,\n    device_type: devType,\n    device_id: devId\n  });\n}\n\nconst lightVal = (typeof p.light === 'number') ? p.light : ((typeof p.l === 'number') ? p.l : ((typeof p.illuminance === 'number') ? p.illuminance : undefined));\nif (typeof lightVal === 'number') {\n  msgs.push({\n    topic: 'light',\n    payload: lightVal,\n    device_type: devType,\n    device_id: devId\n  });\n}\n\nconst cmdLed = flow.get('led_state_' + devType + '_' + devId);\nconst cmdLedColor = cmdLed ? cmdLed.color : null;\nconst cmdLedAge = cmdLed ? (Date.now() - cmdLed.ts) : Infinity;\nconst hasRecentCmd = cmdLedColor && cmdLedAge < 120000;\n\nif (typeof p.led === 'string') {\n  flow.set('led_status_' + devType, { color: p.led, device_id: devId, device_type: devType, ts: Date.now() });\n  msgs.push({\n    topic: 'led_status',\n    payload: p.led,\n    device_type: devType,\n    device_id: devId\n  });\n}\n\nif (typeof p.buzzer !== 'undefined' || typeof p.beep !== 'undefined') {\n  const buzzVal = (typeof p.buzzer === 'number') ? p.buzzer : (typeof p.beep === 'number') ? p.beep : 0;\n  flow.set('buzzer_status_' + devType, { active: buzzVal > 0, value: buzzVal, device_id: devId, device_type: devType, ts: Date.now() });\n  msgs.push({\n    topic: 'buzzer_status',\n    payload: buzzVal > 0 ? 'ON' : 'OFF',\n    device_type: devType,\n    device_id: devId\n  });\n}\n\nif (typeof p.alarm !== 'undefined') {\n  msgs.push({\n    topic: 'alarm',\n    payload: p.alarm ? 'ACTIVE' : 'INACTIVE',\n    device_type: devType,\n    device_id: devId\n  });\n\n  if (p.alarm === true && !hasRecentCmd) {\n    flow.set('led_status_' + devType, { color: 'red', device_id: devId, device_type: devType, ts: Date.now(), source: 'alarm_infer' });\n    msgs.push({\n      topic: 'led_status',\n      payload: 'red',\n      device_type: devType,\n      device_id: devId\n    });\n  } else if (p.alarm === false && !hasRecentCmd) {\n    flow.set('led_status_' + devType, { color: 'off', device_id: devId, device_type: devType, ts: Date.now(), source: 'alarm_infer' });\n    msgs.push({\n      topic: 'led_status',\n      payload: 'off',\n      device_type: devType,\n      device_id: devId\n    });\n  }\n}\n\nreturn msgs.length > 0 ? [msgs] : null;\n",
     "outputs": 1,
     "x": 380,
     "y": 120,
@@ -497,5 +497,45 @@
     "disp": true,
     "width": "12",
     "collapse": false
+  },
+
+  {
+    "id": "bridge-cmd-in",
+    "type": "mqtt in",
+    "z": "tab-dashboard",
+    "name": "sub: command/+/+",
+    "topic": "smarthome/v1/command/+/+",
+    "qos": "1",
+    "datatype": "json",
+    "broker": "mqtt-broker-cfg",
+    "x": 140,
+    "y": 520,
+    "wires": [["bridge-track-state"]]
+  },
+
+  {
+    "id": "bridge-track-state",
+    "type": "function",
+    "z": "tab-dashboard",
+    "name": "track LED/buzzer state",
+    "func": "const payload = msg.payload || {};\nconst parts = (msg.topic || '').split('/');\nconst devType = parts[parts.length - 2] || 'unknown';\nconst devId   = parts[parts.length - 1] || 'unknown';\n\nlet inner = {};\nlet pubTopic = '';\n\nif (devType === 'wifi' || devType === 'ble') {\n  if (typeof payload.led === 'string') {\n    flow.set('led_state_' + devType + '_' + devId, { color: payload.led, ts: Date.now() });\n    pubTopic = 'smarthome/v1/status/' + devType + '/' + devId;\n    inner.led = payload.led;\n  }\n\n  const beepVal = (typeof payload.beep === 'number') ? payload.beep : (typeof payload.buzzer === 'number') ? payload.buzzer : undefined;\n  if (typeof beepVal === 'number') {\n    flow.set('buzzer_state_' + devType + '_' + devId, { active: beepVal > 0, count: beepVal, ts: Date.now() });\n    pubTopic = 'smarthome/v1/status/' + devType + '/' + devId;\n    inner.buzzer = beepVal;\n  }\n\n  if (payload.auto === true) {\n    flow.set('led_state_' + devType + '_' + devId, { color: 'off', ts: Date.now() });\n    pubTopic = 'smarthome/v1/status/' + devType + '/' + devId;\n    inner.led = 'off';\n  }\n}\n\nif (pubTopic && Object.keys(inner).length > 0) {\n  return {\n    topic: pubTopic,\n    payload: {\n      device_id: devId,\n      device_type: devType,\n      timestamp: Math.floor(Date.now() / 1000),\n      status: 'online',\n      payload: inner\n    }\n  };\n}\nreturn null;\n",
+    "outputs": 1,
+    "x": 380,
+    "y": 520,
+    "wires": [["bridge-status-out"]]
+  },
+
+  {
+    "id": "bridge-status-out",
+    "type": "mqtt out",
+    "z": "tab-dashboard",
+    "name": "pub: tracked status",
+    "topic": "",
+    "qos": "1",
+    "retain": "true",
+    "broker": "mqtt-broker-cfg",
+    "x": 640,
+    "y": 520,
+    "wires": []
   }
 ]
