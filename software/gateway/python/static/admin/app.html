@@ -4,7 +4,7 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>SH-MP-EG 网关管理台</title>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/mqtt/5.6.2/mqtt.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/mqtt/4.3.7/mqtt.min.js"></script>
   <style>
     :root {
       --bg: #0f1419; --card: #1a2332; --text: #e6edf3; --muted: #8b949e;
@@ -291,47 +291,59 @@
     // MQTT WebSocket 连接
     // ================================================================== //
     function connectMqtt() {
+      if (typeof mqtt === "undefined") {
+        document.getElementById("mqtt-status").innerHTML = '<span class="status-dot off"></span> MQTT.js 未加载';
+        document.getElementById("last-telemetry").textContent = "错误：MQTT.js 库加载失败，请检查网络连接";
+        return;
+      }
+
       const wsHost = location.hostname || "127.0.0.1";
       const wsUrl = "ws://" + wsHost + ":8083/mqtt";
       const statusEl = document.getElementById("mqtt-status");
-      const dotEl = statusEl.querySelector(".status-dot");
+
+      statusEl.innerHTML = '<span class="status-dot off"></span> 正在连接 ' + wsUrl + ' ...';
+      document.getElementById("last-telemetry").textContent = "尝试连接 EMQX WebSocket: " + wsUrl;
 
       try {
         mqttClient = mqtt.connect(wsUrl, {
           clientId: "web_dash_" + Math.random().toString(16).substr(2, 8),
           clean: true,
-          connectTimeout: 5000,
+          connectTimeout: 10000,
           reconnectPeriod: 5000,
+          keepalive: 30,
         });
       } catch (e) {
         console.warn("MQTT connect error:", e);
+        statusEl.innerHTML = '<span class="status-dot off"></span> MQTT 连接失败: ' + e.message;
+        document.getElementById("last-telemetry").textContent = "连接异常: " + e.message;
         return;
       }
 
       mqttClient.on("connect", () => {
         mqttConnected = true;
-        dotEl.className = "status-dot on";
-        statusEl.innerHTML = '<span class="status-dot on"></span> MQTT 已连接';
-        mqttClient.subscribe("smarthome/v1/telemetry/+/+", { qos: 1 });
+        statusEl.innerHTML = '<span class="status-dot on"></span> MQTT 已连接 (' + wsHost + ':8083)';
+        mqttClient.subscribe("smarthome/v1/telemetry/+/+", { qos: 1 }, (err) => {
+          if (err) console.warn("subscribe error:", err);
+        });
         mqttClient.subscribe("smarthome/v1/status/+/+", { qos: 1 });
         document.getElementById("last-telemetry").textContent = "已连接，等待设备数据...";
       });
 
       mqttClient.on("reconnect", () => {
-        dotEl.className = "status-dot off";
-        statusEl.innerHTML = '<span class="status-dot off"></span> MQTT 重连中...';
         mqttConnected = false;
+        statusEl.innerHTML = '<span class="status-dot off"></span> MQTT 重连中 (' + wsHost + ':8083)...';
       });
 
       mqttClient.on("close", () => {
         mqttConnected = false;
-        dotEl.className = "status-dot off";
         statusEl.innerHTML = '<span class="status-dot off"></span> MQTT 已断开';
       });
 
       mqttClient.on("error", (err) => {
         console.warn("MQTT error:", err);
         mqttConnected = false;
+        statusEl.innerHTML = '<span class="status-dot off"></span> MQTT 错误: ' + (err.message || err);
+        document.getElementById("last-telemetry").textContent = "连接错误: " + (err.message || err) + " | 请确认 EMQX 已启动且端口 8083 可访问";
       });
 
       mqttClient.on("message", (topic, message) => {
