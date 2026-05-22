@@ -5,6 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>SH-MP-EG 网关管理台</title>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/mqtt/4.3.7/mqtt.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.7/dist/chart.umd.min.js"></script>
   <style>
     :root {
       --bg: #0f1419; --card: #1a2332; --text: #e6edf3; --muted: #8b949e;
@@ -86,6 +87,11 @@
 
     .hidden { display: none !important; }
     .conn-status { font-size: 0.75rem; display: flex; align-items: center; gap: 0.35rem; }
+
+    .chart-row { display: grid; grid-template-columns: repeat(auto-fit, minmax(340px, 1fr)); gap: 1rem; margin-bottom: 1rem; }
+    .chart-box { background: #0d1117; border-radius: 8px; padding: 0.75rem; border: 1px solid var(--border); }
+    .chart-box h3 { font-size: 0.78rem; color: var(--muted); margin-bottom: 0.5rem; text-transform: uppercase; letter-spacing: 0.05em; }
+    .chart-box canvas { width: 100% !important; height: 200px !important; }
   </style>
 </head>
 <body>
@@ -124,6 +130,24 @@
         <div class="gauge-label">信号强度</div>
         <div class="gauge-value normal" id="gauge-rssi">--</div>
         <div class="gauge-unit">dBm</div>
+      </div>
+    </div>
+
+    <div class="card">
+      <h2>历史曲线</h2>
+      <div class="chart-row">
+        <div class="chart-box">
+          <h3>温度 (°C)</h3>
+          <canvas id="chart-temp"></canvas>
+        </div>
+        <div class="chart-box">
+          <h3>湿度 (%)</h3>
+          <canvas id="chart-hum"></canvas>
+        </div>
+        <div class="chart-box">
+          <h3>光照 (lux)</h3>
+          <canvas id="chart-light"></canvas>
+        </div>
       </div>
     </div>
 
@@ -257,6 +281,63 @@
     let mqttClient = null;
     let mqttConnected = false;
 
+    // 历史曲线
+    const MAX_POINTS = 100;
+    const chartData = {
+      temp: { labels: [], values: [] },
+      hum:  { labels: [], values: [] },
+      light:{ labels: [], values: [] }
+    };
+    let charts = {};
+
+    function initCharts() {
+      const opts = {
+        responsive: true,
+        maintainAspectRatio: false,
+        animation: { duration: 200 },
+        plugins: { legend: { display: false } },
+        scales: {
+          x: { ticks: { color: '#8b949e', maxTicksLimit: 8, font: { size: 10 } }, grid: { color: '#21262d' } },
+          y: { ticks: { color: '#8b949e', font: { size: 10 } }, grid: { color: '#21262d' }, beginAtZero: false }
+        },
+        elements: { point: { radius: 0 }, line: { tension: 0.3 } }
+      };
+
+      const common = { type: 'line', data: { labels: [], datasets: [{ data: [], borderWidth: 2 }] }, options: opts };
+
+      const cfgTemp = JSON.parse(JSON.stringify(common));
+      cfgTemp.options.scales.y.min = -10; cfgTemp.options.scales.y.max = 50;
+      cfgTemp.data.datasets[0].borderColor = '#58a6ff';
+      charts.temp = new Chart(document.getElementById('chart-temp'), cfgTemp);
+
+      const cfgHum = JSON.parse(JSON.stringify(common));
+      cfgHum.options.scales.y.min = 0; cfgHum.options.scales.y.max = 100;
+      cfgHum.data.datasets[0].borderColor = '#3fb950';
+      charts.hum = new Chart(document.getElementById('chart-hum'), cfgHum);
+
+      const cfgLight = JSON.parse(JSON.stringify(common));
+      cfgLight.options.scales.y.min = 0; cfgLight.options.scales.y.max = 1000;
+      cfgLight.data.datasets[0].borderColor = '#d29922';
+      charts.light = new Chart(document.getElementById('chart-light'), cfgLight);
+    }
+
+    function pushChart(which, value) {
+      const buf = chartData[which];
+      if (!buf) return;
+      const now = new Date();
+      const label = now.getHours().toString().padStart(2,'0') + ':' +
+                    now.getMinutes().toString().padStart(2,'0') + ':' +
+                    now.getSeconds().toString().padStart(2,'0');
+      buf.labels.push(label);
+      buf.values.push(value);
+      if (buf.labels.length > MAX_POINTS) { buf.labels.shift(); buf.values.shift(); }
+      const c = charts[which];
+      if (!c) return;
+      c.data.labels = buf.labels;
+      c.data.datasets[0].data = buf.values;
+      c.update('none');
+    }
+
     // ================================================================== //
     // 工具函数
     // ================================================================== //
@@ -365,10 +446,10 @@
       document.getElementById("last-telemetry").textContent =
         "[" + ts + "] " + devType + "/" + devId + " — " + JSON.stringify(p).substring(0, 200);
 
-      if (typeof p.temperature === "number") updateGauge("temp", p.temperature, -10, 50, "°C");
-      if (typeof p.humidity === "number") updateGauge("hum", p.humidity, 0, 100, "%");
+      if (typeof p.temperature === "number") { updateGauge("temp", p.temperature, -10, 50, "°C"); pushChart("temp", p.temperature); }
+      if (typeof p.humidity === "number") { updateGauge("hum", p.humidity, 0, 100, "%"); pushChart("hum", p.humidity); }
       const lightVal = (typeof p.light === "number") ? p.light : ((typeof p.l === "number") ? p.l : ((typeof p.illuminance === "number") ? p.illuminance : undefined));
-      if (typeof lightVal === "number") updateGauge("light", lightVal, 0, 1000, "lux");
+      if (typeof lightVal === "number") { updateGauge("light", lightVal, 0, 1000, "lux"); pushChart("light", lightVal); }
       if (typeof p.rssi === "number") updateGauge("rssi", p.rssi, -100, -20, "dBm");
 
       if (typeof p.led === "string") updateLedStatus(p.led);
@@ -620,6 +701,7 @@
       }
 
       connectMqtt();
+      initCharts();
       await loadNodes();
 
       setInterval(loadNodes, 5000);
